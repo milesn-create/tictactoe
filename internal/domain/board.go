@@ -1,9 +1,10 @@
 package domain
 
-type Board [3][3]int
+type Cell int
+type Board [3][3]Cell
 
 const (
-	Empty  = 0
-	Cross  = 1
-	Nought = -1
+	Empty  Cell = 0
+	Cross  Cell = 1
+	Nought Cell = -1
 )
