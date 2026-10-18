@@ -50,7 +50,10 @@ func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
 func (s *gameService) ValidateBoard(game domain.Game) error {
 	oldGame, err := s.repo.Get(game.ID)
 	if err != nil {
-		return err
+		if !errors.Is(err, domain.ErrGameNotFound) {
+			return err
+		}
+		oldGame = domain.Game{ID: game.ID}
 	}
 	newMoves := 0
 	for i := 0; i < 3; i++ {
