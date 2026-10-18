@@ -5,6 +5,13 @@ import (
 	"tictactoe/domain"
 )
 
+var (
+	ErrBoardModified     = errors.New("previous moves were modified")
+	ErrInvalidMovesCount = errors.New("exactly one new move is required")
+	ErrGameOver          = errors.New("game over")
+	ErrBoardFull         = errors.New("board is full")
+)
+
 type gameService struct {
 	repo Repository
 }
@@ -15,14 +22,33 @@ func NewService(repo Repository) domain.Service {
 }
 
 func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
-	return domain.Game{}, nil
-
+	over, _ := s.IsGameOver(game)
+	if over {
+		return domain.Game{}, ErrGameOver
+	}
+	bestI := -1
+	bestJ := -1
+	bestScore := -2
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if game.Board[i][j] == domain.Empty {
+				game.Board[i][j] = domain.Nought
+				score := minimax(game.Board, false)
+				game.Board[i][j] = domain.Empty
+				if score > bestScore {
+					bestScore = score
+					bestI = i
+					bestJ = j
+				}
+			}
+		}
+	}
+	if bestI == -1 {
+		return domain.Game{}, ErrBoardFull
+	}
+	game.Board[bestI][bestJ] = domain.Nought
+	return game, nil
 }
-
-var (
-	ErrBoardModified     = errors.New("previous moves were modified")
-	ErrInvalidMovesCount = errors.New("exactly one new move is required")
-)
 
 func (s *gameService) ValidateBoard(game domain.Game) error {
 	oldGame, err := s.repo.Get(game.ID)
