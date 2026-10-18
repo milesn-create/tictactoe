@@ -7,7 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrGameNotFound = errors.New("game not found")
 var ErrInvalidStorageData = errors.New("invalid data in storage")
 
 type gameRepository struct {
@@ -28,7 +27,7 @@ func (r *gameRepository) Save(game domain.Game) error {
 func (r *gameRepository) Get(id uuid.UUID) (domain.Game, error) {
 	value, ok := r.storage.games.Load(id)
 	if !ok {
-		return domain.Game{}, ErrGameNotFound
+		return domain.Game{}, domain.ErrGameNotFound
 	}
 	game, ok := value.(Game)
 	if !ok {

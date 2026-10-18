@@ -6,10 +6,7 @@ import (
 )
 
 var (
-	ErrBoardModified     = errors.New("previous moves were modified")
-	ErrInvalidMovesCount = errors.New("exactly one new move is required")
-	ErrGameOver          = errors.New("game over")
-	ErrBoardFull         = errors.New("board is full")
+	ErrBoardFull = errors.New("board is full")
 )
 
 type gameService struct {
@@ -24,7 +21,7 @@ func NewService(repo Repository) domain.Service {
 func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
 	over, _ := s.IsGameOver(game)
 	if over {
-		return domain.Game{}, ErrGameOver
+		return domain.Game{}, domain.ErrGameOver
 	}
 	bestI := -1
 	bestJ := -1
@@ -59,19 +56,19 @@ func (s *gameService) ValidateBoard(game domain.Game) error {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if oldGame.Board[i][j] != domain.Empty && oldGame.Board[i][j] != game.Board[i][j] {
-				return ErrBoardModified
+				return domain.ErrBoardModified
 			}
 
 			if oldGame.Board[i][j] == domain.Empty && game.Board[i][j] != domain.Empty {
 				if game.Board[i][j] != domain.Cross {
-					return ErrBoardModified
+					return domain.ErrBoardModified
 				}
 				newMoves++
 			}
 		}
 	}
 	if newMoves != 1 {
-		return ErrInvalidMovesCount
+		return domain.ErrInvalidMovesCount
 	}
 	return nil
 
