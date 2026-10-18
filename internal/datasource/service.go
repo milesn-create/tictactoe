@@ -1,6 +1,9 @@
 package datasource
 
-import "tictactoe/domain"
+import (
+	"errors"
+	"tictactoe/domain"
+)
 
 type gameService struct {
 	repo Repository
@@ -16,7 +19,34 @@ func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
 
 }
 
+var (
+	ErrBoardModified     = errors.New("previous moves were modified")
+	ErrInvalidMovesCount = errors.New("exactly one new move is required")
+)
+
 func (s *gameService) ValidateBoard(game domain.Game) error {
+	oldGame, err := s.repo.Get(game.ID)
+	if err != nil {
+		return err
+	}
+	newMoves := 0
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if oldGame.Board[i][j] != domain.Empty && oldGame.Board[i][j] != game.Board[i][j] {
+				return ErrBoardModified
+			}
+
+			if oldGame.Board[i][j] == domain.Empty && game.Board[i][j] != domain.Empty {
+				if game.Board[i][j] != domain.Cross {
+					return ErrBoardModified
+				}
+				newMoves++
+			}
+		}
+	}
+	if newMoves != 1 {
+		return ErrInvalidMovesCount
+	}
 	return nil
 
 }
