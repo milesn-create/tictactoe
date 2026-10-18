@@ -83,3 +83,47 @@ func isBoardFull(board domain.Board) bool {
 	return true
 
 }
+func minimax(board domain.Board, isComputerTurn bool) int {
+	winner := findWinner(board)
+	if winner == domain.Cross {
+		return -1
+	}
+	if winner == domain.Nought {
+		return 1
+	}
+	if isBoardFull(board) {
+		return 0
+	}
+	if isComputerTurn {
+		best := -2
+		for i := 0; i < 3; i++ {
+			for j := 0; j < 3; j++ {
+				if board[i][j] == domain.Empty {
+					board[i][j] = domain.Nought
+					score := minimax(board, false)
+					board[i][j] = domain.Empty
+					if score > best {
+						best = score
+					}
+
+				}
+			}
+		}
+		return best
+	}
+	best := 2
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if board[i][j] == domain.Empty {
+				board[i][j] = domain.Cross
+				score := minimax(board, true)
+				board[i][j] = domain.Empty
+				if score < best {
+					best = score
+				}
+
+			}
+		}
+	}
+	return best
+}
