@@ -61,10 +61,10 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if err := h.saver.Save(game); err != nil {
-			http.Error(w, "failed to save game", http.StatusInternalServerError)
-			return
-		}
+	}
+	if err := h.saver.Save(game); err != nil {
+		http.Error(w, "failed to save game", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-type", "application/json")
 	err = json.NewEncoder(w).Encode(toWeb(game))
