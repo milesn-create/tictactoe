@@ -55,6 +55,9 @@ func (s *gameService) ValidateBoard(game domain.Game) error {
 		}
 		oldGame = domain.Game{ID: game.ID}
 	}
+	if over, _ := s.IsGameOver(oldGame); over {
+		return domain.ErrGameOver
+	}
 	newMoves := 0
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
