@@ -1,7 +1,8 @@
-package datasource
+package service
 
 import (
 	"errors"
+	"tictactoe/datasource/repository"
 	"tictactoe/domain"
 )
 
@@ -10,10 +11,10 @@ var (
 )
 
 type gameService struct {
-	repo Repository
+	repo repository.Repository
 }
 
-func NewService(repo Repository) domain.Service {
+func NewService(repo repository.Repository) domain.Service {
 	return &gameService{repo: repo}
 
 }

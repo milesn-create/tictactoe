@@ -1,13 +1,14 @@
-package datasource
+package mapper
 
 import (
 	"errors"
+	"tictactoe/datasource/model"
 	"tictactoe/domain"
 )
 
 var ErrInvalidBoardSize = errors.New("board must be 3x3")
 
-func toDomain(game Game) (domain.Game, error) {
+func ToDomain(game model.Game) (domain.Game, error) {
 
 	if len(game.Board) != 3 {
 		return domain.Game{}, ErrInvalidBoardSize
@@ -27,7 +28,7 @@ func toDomain(game Game) (domain.Game, error) {
 	return domain.Game{ID: game.ID, Board: board}, nil
 
 }
-func toDatasource(game domain.Game) Game {
+func ToDatasource(game domain.Game) model.Game {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
 		board[i] = make([]int, 3)
@@ -35,5 +36,5 @@ func toDatasource(game domain.Game) Game {
 			board[i][j] = int(game.Board[i][j])
 		}
 	}
-	return Game{ID: game.ID, Board: board}
+	return model.Game{ID: game.ID, Board: board}
 }

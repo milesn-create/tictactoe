@@ -5,7 +5,9 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"tictactoe/datasource"
+	"tictactoe/datasource/repository"
+	"tictactoe/datasource/service"
+	"tictactoe/datasource/storage"
 	"tictactoe/domain"
 	"tictactoe/web"
 
@@ -14,15 +16,15 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(
-		datasource.NewStorage,
-		datasource.NewRepository,
-		datasource.NewService,
+		storage.NewStorage,
+		repository.NewRepository,
+		service.NewService,
 		newHandler),
 	fx.Invoke(runServer),
 )
 
-func newHandler(service domain.Service, repo datasource.Repository) *web.Handler {
-	return web.NewHandler(service, repo)
+func newHandler(serv domain.Service, repo repository.Repository) *web.Handler {
+	return web.NewHandler(serv, repo)
 }
 func runServer(lc fx.Lifecycle, handler *web.Handler) {
 	mux := http.NewServeMux()

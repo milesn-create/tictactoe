@@ -1,9 +1,9 @@
-package datasource
+package storage
 
 import "sync"
 
 type Storage struct {
-	games sync.Map
+	Games sync.Map
 }
 
 func NewStorage() *Storage {

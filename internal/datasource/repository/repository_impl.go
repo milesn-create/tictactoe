@@ -1,7 +1,10 @@
-package datasource
+package repository
 
 import (
 	"errors"
+	"tictactoe/datasource/mapper"
+	"tictactoe/datasource/model"
+	"tictactoe/datasource/storage"
 	"tictactoe/domain"
 
 	"github.com/google/uuid"
@@ -10,28 +13,28 @@ import (
 var ErrInvalidStorageData = errors.New("invalid data in storage")
 
 type gameRepository struct {
-	storage *Storage
+	storage *storage.Storage
 }
 
-func NewRepository(storage *Storage) Repository {
+func NewRepository(storage *storage.Storage) Repository {
 	return &gameRepository{storage: storage}
 }
 
 func (r *gameRepository) Save(game domain.Game) error {
-	saveGame := toDatasource(game)
+	saveGame := mapper.ToDatasource(game)
 
-	r.storage.games.Store(game.ID, saveGame)
+	r.storage.Games.Store(game.ID, saveGame)
 	return nil
 }
 
 func (r *gameRepository) Get(id uuid.UUID) (domain.Game, error) {
-	value, ok := r.storage.games.Load(id)
+	value, ok := r.storage.Games.Load(id)
 	if !ok {
 		return domain.Game{}, domain.ErrGameNotFound
 	}
-	game, ok := value.(Game)
+	game, ok := value.(model.Game)
 	if !ok {
 		return domain.Game{}, ErrInvalidStorageData
 	}
-	return toDomain(game)
+	return mapper.ToDomain(game)
 }

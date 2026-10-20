@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-
 	"tictactoe/domain"
 
 	"github.com/google/uuid"
@@ -18,9 +17,9 @@ type Handler struct {
 	saver   gameSaver
 }
 
-func NewHandler(service domain.Service, saver gameSaver) *Handler {
+func NewHandler(serv domain.Service, saver gameSaver) *Handler {
 	return &Handler{
-		service: service,
+		service: serv,
 		saver:   saver,
 	}
 

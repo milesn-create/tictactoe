@@ -1,4 +1,4 @@
-package datasource
+package repository
 
 import (
 	"tictactoe/domain"
