@@ -16,8 +16,8 @@ type gameRepository struct {
 	storage *storage.Storage
 }
 
-func NewRepository(storage *storage.Storage) Repository {
-	return &gameRepository{storage: storage}
+func NewRepository(stor *storage.Storage) Repository {
+	return &gameRepository{storage: stor}
 }
 
 func (r *gameRepository) Save(game domain.Game) error {
