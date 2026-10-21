@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"tictactoe/datasource/repository"
 	"tictactoe/domain"
@@ -48,8 +49,8 @@ func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
 	return game, nil
 }
 
-func (s *gameService) ValidateBoard(game domain.Game) error {
-	oldGame, err := s.repo.Get(game.ID)
+func (s *gameService) ValidateBoard(ctx context.Context, game domain.Game) error {
+	oldGame, err := s.repo.Get(ctx, game.ID)
 	if err != nil {
 		if !errors.Is(err, domain.ErrGameNotFound) {
 			return err

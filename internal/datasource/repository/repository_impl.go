@@ -1,40 +1,63 @@
 package repository
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
-	"tictactoe/datasource/storage"
 	"tictactoe/domain"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var ErrInvalidStorageData = errors.New("invalid data in storage")
-
 type gameRepository struct {
-	storage *storage.Storage
+	pool *pgxpool.Pool
 }
 
-func NewRepository(stor *storage.Storage) Repository {
-	return &gameRepository{storage: stor}
+func NewRepository(pool *pgxpool.Pool) Repository {
+	return &gameRepository{pool: pool}
 }
 
-func (r *gameRepository) Save(game domain.Game) error {
+const (
+	saveGameQuery = `INSERT INTO games(id, board)
+					 VALUES ($1, $2)
+					 ON CONFLICT (id)
+					 DO UPDATE SET board= EXCLUDED.board`
+	getGameQuery = `SELECT board 
+					FROM games 
+					WHERE id = $1`
+)
+
+func (r *gameRepository) Save(ctx context.Context, game domain.Game) error {
 	saveGame := mapper.ToDatasource(game)
-
-	r.storage.Games.Store(game.ID, saveGame)
+	board, err := json.Marshal(saveGame.Board)
+	if err != nil {
+		return fmt.Errorf("marshal board: %w", err)
+	}
+	_, err = r.pool.Exec(ctx, saveGameQuery, saveGame.ID, board)
+	if err != nil {
+		return fmt.Errorf("save game: %w", err)
+	}
 	return nil
 }
 
-func (r *gameRepository) Get(id uuid.UUID) (domain.Game, error) {
-	value, ok := r.storage.Games.Load(id)
-	if !ok {
-		return domain.Game{}, domain.ErrGameNotFound
+func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domain.Game, error) {
+	var board []byte
+	err := r.pool.QueryRow(ctx, getGameQuery, id).Scan(&board)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Game{}, domain.ErrGameNotFound
+		}
+		return domain.Game{}, fmt.Errorf("get game : %w", err)
 	}
-	game, ok := value.(model.Game)
-	if !ok {
-		return domain.Game{}, ErrInvalidStorageData
+	game := model.Game{ID: id}
+	err = json.Unmarshal(board, &game.Board)
+	if err != nil {
+		return domain.Game{}, fmt.Errorf("unmarshal board: %w", err)
 	}
 	return mapper.ToDomain(game)
 }

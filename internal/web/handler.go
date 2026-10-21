@@ -1,8 +1,10 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"tictactoe/domain"
 
@@ -10,7 +12,7 @@ import (
 )
 
 type gameSaver interface {
-	Save(game domain.Game) error
+	Save(ctx context.Context, game domain.Game) error
 }
 type Handler struct {
 	service domain.Service
@@ -25,6 +27,7 @@ func NewHandler(serv domain.Service, saver gameSaver) *Handler {
 
 }
 func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	strID := r.PathValue("id")
 	id, err := uuid.Parse(strID)
 	if err != nil {
@@ -45,29 +48,42 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "game id mismatch", http.StatusBadRequest)
 		return
 	}
-	if err := h.service.ValidateBoard(game); err != nil {
+	if err := h.service.ValidateBoard(ctx, game); err != nil {
 		if errors.Is(err, domain.ErrGameNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, domain.ErrBoardModified) || errors.Is(err, domain.ErrInvalidMovesCount) || errors.Is(err, domain.ErrGameOver) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
 	over, _ := h.service.IsGameOver(game)
 	if !over {
 		game, err = h.service.NextMove(game)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			log.Println(err)
 			return
 		}
 	}
-	if err := h.saver.Save(game); err != nil {
-		http.Error(w, "failed to save game", http.StatusInternalServerError)
+	if err := h.saver.Save(ctx, game); err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
-	w.Header().Set("Content-type", "application/json")
-	err = json.NewEncoder(w).Encode(toWeb(game))
+	data, err := json.Marshal(toWeb(game))
 	if err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
 	}
 }
