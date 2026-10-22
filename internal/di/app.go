@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"tictactoe/datasource/postgres"
 	"tictactoe/datasource/repository"
 	"tictactoe/datasource/service"
@@ -32,7 +33,11 @@ func newHandler(serv domain.Service, repo repository.Repository) *web.Handler {
 func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	pool, err := postgres.NewPool(ctx, "postgres://tictactoe:tictactoe@localhost:5433/tictactoe")
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		return nil, errors.New("DATABASE_URL is not set")
+	}
+	pool, err := postgres.NewPool(ctx, dbURL)
 	if err != nil {
 		return nil, err
 	}

@@ -3,3 +3,5 @@
 
 # Built binaries
 cmd/app/app
+
+.env
