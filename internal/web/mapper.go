@@ -37,3 +37,7 @@ func toWeb(game domain.Game) Game {
 	}
 	return Game{ID: game.ID, Board: board}
 }
+
+func signUpToDomain(request SignUpRequest) domain.SignUpRequest {
+	return domain.SignUpRequest{Login: request.Login, Password: request.Password}
+}
