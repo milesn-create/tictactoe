@@ -1,4 +1,4 @@
-package web
+package webmodel
 
 import "github.com/google/uuid"
 

@@ -12,7 +12,7 @@ import (
 	"tictactoe/datasource/service"
 	"tictactoe/domain"
 	"tictactoe/web"
-	"tictactoe/web/middleware"
+	"tictactoe/web/webmiddleware"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,7 +29,7 @@ var Module = fx.Options(
 		service.NewUserService,
 		service.NewAuthService,
 		web.NewAuthHandler,
-		middleware.NewUserAuthenticator,
+		webmiddleware.NewUserAuthenticator,
 	),
 
 	fx.Invoke(runServer),
@@ -56,7 +56,7 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	return pool, nil
 
 }
-func runServer(lc fx.Lifecycle, handler *web.GameHandler, autHandl *web.AuthHandler, midd *middleware.UserAuthenticator) {
+func runServer(lc fx.Lifecycle, handler *web.GameHandler, autHandl *web.AuthHandler, midd *webmiddleware.UserAuthenticator) {
 	mux := http.NewServeMux()
 	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.Handle)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)

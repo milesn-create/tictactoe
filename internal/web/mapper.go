@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 	"tictactoe/domain"
+	"tictactoe/web/webmodel"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 	ErrInvalidPassword  = errors.New("invalid password input")
 )
 
-func toDomain(game Game) (domain.Game, error) {
+func toDomain(game webmodel.Game) (domain.Game, error) {
 	if len(game.Board) != 3 {
 		return domain.Game{}, ErrInvalidBoardSize
 	}
@@ -32,7 +33,7 @@ func toDomain(game Game) (domain.Game, error) {
 	return domain.Game{ID: game.ID, Board: board}, nil
 
 }
-func toWeb(game domain.Game) Game {
+func toWeb(game domain.Game) webmodel.Game {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
 		board[i] = make([]int, 3)
@@ -40,10 +41,10 @@ func toWeb(game domain.Game) Game {
 			board[i][j] = int(game.Board[i][j])
 		}
 	}
-	return Game{ID: game.ID, Board: board}
+	return webmodel.Game{ID: game.ID, Board: board}
 }
 
-func signUpToDomain(request SignUpRequest) (domain.SignUpRequest, error) {
+func signUpToDomain(request webmodel.SignUpRequest) (domain.SignUpRequest, error) {
 	login := strings.TrimSpace(request.Login)
 	if len(login) == 0 || strings.Contains(login, ":") {
 		return domain.SignUpRequest{}, ErrInvalidLogin

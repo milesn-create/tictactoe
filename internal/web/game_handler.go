@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/web/webmodel"
 
 	"github.com/google/uuid"
 )
@@ -34,7 +35,7 @@ func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid game id", http.StatusBadRequest)
 		return
 	}
-	var webGame Game
+	var webGame webmodel.Game
 	if err := json.NewDecoder(r.Body).Decode(&webGame); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return

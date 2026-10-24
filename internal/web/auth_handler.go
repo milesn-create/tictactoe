@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/web/webmodel"
 )
 
 type AuthHandler struct {
@@ -17,7 +18,7 @@ func NewAuthHandler(serv domain.AuthService) *AuthHandler {
 }
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var authModel SignUpRequest
+	var authModel webmodel.SignUpRequest
 	if err := json.NewDecoder(r.Body).Decode(&authModel); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
@@ -57,7 +58,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	data, err := json.Marshal(SignInResponse{ID: id})
+	data, err := json.Marshal(webmodel.SignInResponse{ID: id})
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)
