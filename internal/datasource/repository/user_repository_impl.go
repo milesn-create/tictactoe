@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"tictactoe/datasource/dsmapper"
-	"tictactoe/datasource/model"
+	"tictactoe/datasource/dsmodel"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainrepository"
@@ -36,7 +36,7 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (domainmo
 	if err != nil {
 		return domainmodel.User{}, fmt.Errorf("failed query get user by login: %w", err)
 	}
-	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[model.User])
+	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[dsmodel.User])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domainmodel.User{}, domainerror.ErrUserNotFound

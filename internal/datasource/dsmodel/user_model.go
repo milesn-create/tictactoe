@@ -1,4 +1,4 @@
-package model
+package dsmodel
 
 import "github.com/google/uuid"
 

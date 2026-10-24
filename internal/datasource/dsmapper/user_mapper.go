@@ -1,14 +1,14 @@
 package dsmapper
 
 import (
-	"tictactoe/datasource/model"
+	"tictactoe/datasource/dsmodel"
 	"tictactoe/domain/domainmodel"
 )
 
-func UserToDomain(user model.User) domainmodel.User {
+func UserToDomain(user dsmodel.User) domainmodel.User {
 	return domainmodel.User{ID: user.ID, Login: user.Login, PasswordHash: user.PasswordHash}
 }
 
-func UserToDatasource(user domainmodel.User) model.User {
-	return model.User{ID: user.ID, Login: user.Login, PasswordHash: user.PasswordHash}
+func UserToDatasource(user domainmodel.User) dsmodel.User {
+	return dsmodel.User{ID: user.ID, Login: user.Login, PasswordHash: user.PasswordHash}
 }

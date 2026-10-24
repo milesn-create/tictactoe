@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"tictactoe/datasource/dsmapper"
-	"tictactoe/datasource/model"
+	"tictactoe/datasource/dsmodel"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainrepository"
@@ -56,7 +56,7 @@ func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Gam
 		}
 		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
 	}
-	game := model.Game{ID: id}
+	game := dsmodel.Game{ID: id}
 	err = json.Unmarshal(board, &game.Board)
 	if err != nil {
 		return domainmodel.Game{}, fmt.Errorf("unmarshal board: %w", err)
