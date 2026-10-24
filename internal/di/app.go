@@ -7,8 +7,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"tictactoe/datasource/dsrepository"
 	"tictactoe/datasource/postgres"
-	"tictactoe/datasource/repository"
 	"tictactoe/datasource/service"
 	"tictactoe/domain/domainrepository"
 	"tictactoe/domain/domainservice"
@@ -23,10 +23,10 @@ import (
 var Module = fx.Options(
 	fx.Provide(
 		newPool,
-		repository.NewGameRepository,
+		dsrepository.NewGameRepository,
 		service.NewService,
 		newHandler,
-		repository.NewUserRepository,
+		dsrepository.NewUserRepository,
 		service.NewUserService,
 		service.NewAuthService,
 		webhandler.NewAuthHandler,
