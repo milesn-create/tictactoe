@@ -22,8 +22,12 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	authDomain := signUpToDomain(authModel)
-	err := h.serv.SignUp(ctx, authDomain)
+	authDomain, err := signUpToDomain(authModel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = h.serv.SignUp(ctx, authDomain)
 	if err != nil {
 		if errors.Is(err, domain.ErrUserExists) {
 			http.Error(w, err.Error(), http.StatusConflict)

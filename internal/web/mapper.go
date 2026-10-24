@@ -2,11 +2,16 @@ package web
 
 import (
 	"errors"
+	"strings"
 	"tictactoe/domain"
 )
 
-var ErrInvalidBoardSize = errors.New("board must be 3x3")
-var ErrInvalidCellValue = errors.New("cell must be -1, 0 or 1")
+var (
+	ErrInvalidBoardSize = errors.New("board must be 3x3")
+	ErrInvalidCellValue = errors.New("cell must be -1, 0 or 1")
+	ErrInvalidLogin     = errors.New("invalid login input")
+	ErrInvalidPassword  = errors.New("invalid password input")
+)
 
 func toDomain(game Game) (domain.Game, error) {
 	if len(game.Board) != 3 {
@@ -38,6 +43,13 @@ func toWeb(game domain.Game) Game {
 	return Game{ID: game.ID, Board: board}
 }
 
-func signUpToDomain(request SignUpRequest) domain.SignUpRequest {
-	return domain.SignUpRequest{Login: request.Login, Password: request.Password}
+func signUpToDomain(request SignUpRequest) (domain.SignUpRequest, error) {
+	login := strings.TrimSpace(request.Login)
+	if len(login) == 0 || strings.Contains(login, ":") {
+		return domain.SignUpRequest{}, ErrInvalidLogin
+	}
+	if len(strings.TrimSpace(request.Password)) == 0 || len(request.Password) > 72 {
+		return domain.SignUpRequest{}, ErrInvalidPassword
+	}
+	return domain.SignUpRequest{Login: login, Password: request.Password}, nil
 }
