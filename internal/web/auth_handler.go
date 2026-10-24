@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
 )
 
@@ -23,7 +24,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	authDomain, err := signUpToDomain(authModel)
+	authDomain, err := webmapper.SignUpToDomain(authModel)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

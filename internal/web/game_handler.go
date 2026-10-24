@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
 
 	"github.com/google/uuid"
@@ -40,7 +41,7 @@ func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	game, err := toDomain(webGame)
+	game, err := webmapper.ToDomain(webGame)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -76,7 +77,7 @@ func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	data, err := json.Marshal(toWeb(game))
+	data, err := json.Marshal(webmapper.ToWeb(game))
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)
