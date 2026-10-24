@@ -22,7 +22,7 @@ import (
 var Module = fx.Options(
 	fx.Provide(
 		newPool,
-		repository.NewRepository,
+		repository.NewGameRepository,
 		service.NewService,
 		newHandler,
 		repository.NewUserRepository,
@@ -35,8 +35,8 @@ var Module = fx.Options(
 	fx.Invoke(runServer),
 )
 
-func newHandler(serv domain.Service, repo repository.Repository) *web.Handler {
-	return web.NewHandler(serv, repo)
+func newHandler(serv domain.Service, repo domain.GameRepository) *web.GameHandler {
+	return web.NewGameHandler(serv, repo)
 }
 func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -56,7 +56,7 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	return pool, nil
 
 }
-func runServer(lc fx.Lifecycle, handler *web.Handler, autHandl *web.AuthHandler, midd *middleware.UserAuthenticator) {
+func runServer(lc fx.Lifecycle, handler *web.GameHandler, autHandl *web.AuthHandler, midd *middleware.UserAuthenticator) {
 	mux := http.NewServeMux()
 	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.Handle)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)

@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"tictactoe/datasource/repository"
 	"tictactoe/domain"
 )
 
@@ -12,10 +11,10 @@ var (
 )
 
 type gameService struct {
-	repo repository.Repository
+	repo domain.GameRepository
 }
 
-func NewService(repo repository.Repository) domain.Service {
+func NewService(repo domain.GameRepository) domain.Service {
 	return &gameService{repo: repo}
 
 }

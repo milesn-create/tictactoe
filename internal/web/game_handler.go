@@ -14,19 +14,19 @@ import (
 type gameSaver interface {
 	Save(ctx context.Context, game domain.Game) error
 }
-type Handler struct {
+type GameHandler struct {
 	service domain.Service
 	saver   gameSaver
 }
 
-func NewHandler(serv domain.Service, saver gameSaver) *Handler {
-	return &Handler{
+func NewGameHandler(serv domain.Service, saver gameSaver) *GameHandler {
+	return &GameHandler{
 		service: serv,
 		saver:   saver,
 	}
 
 }
-func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	strID := r.PathValue("id")
 	id, err := uuid.Parse(strID)

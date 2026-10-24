@@ -18,7 +18,7 @@ type gameRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewRepository(pool *pgxpool.Pool) Repository {
+func NewGameRepository(pool *pgxpool.Pool) domain.GameRepository {
 	return &gameRepository{pool: pool}
 }
 

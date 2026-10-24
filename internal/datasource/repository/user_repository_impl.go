@@ -17,7 +17,7 @@ type userRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewUserRepository(pool *pgxpool.Pool) UserRepository {
+func NewUserRepository(pool *pgxpool.Pool) domain.UserRepository {
 	return &userRepository{pool: pool}
 }
 
@@ -25,7 +25,7 @@ const (
 	getUserByLoginQuery = `SELECT  id, login, password_hash
 					   FROM users
 					   WHERE login = $1`
-	createUserQuery = `INSERT INTO users(id , login, password_hash)
+	createUserQuery = `INSERT INTO users(id, login, password_hash)
 					   VALUES ($1, $2, $3)`
 )
 
@@ -47,7 +47,6 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (domain.U
 func (r *userRepository) Create(ctx context.Context, user domain.User) error {
 	userDatasource := mapper.UserToDatasource(user)
 	_, err := r.pool.Exec(ctx, createUserQuery, userDatasource.ID, userDatasource.Login, userDatasource.PasswordHash)
-
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -56,5 +55,4 @@ func (r *userRepository) Create(ctx context.Context, user domain.User) error {
 		return fmt.Errorf("failed query create user: %w", err)
 	}
 	return nil
-
 }
