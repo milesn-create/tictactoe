@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"errors"
-	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainrepository"
+	"tictactoe/domain/domainservice"
 )
 
 var (
@@ -17,7 +17,7 @@ type gameService struct {
 	repo domainrepository.GameRepository
 }
 
-func NewService(repo domainrepository.GameRepository) domain.Service {
+func NewService(repo domainrepository.GameRepository) domainservice.Service {
 	return &gameService{repo: repo}
 
 }

@@ -4,19 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
+	"tictactoe/domain/domainservice"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type authService struct {
-	users domain.UserService
+	users domainservice.UserService
 }
 
-func NewAuthService(users domain.UserService) domain.AuthService {
+func NewAuthService(users domainservice.UserService) domainservice.AuthService {
 	return &authService{users: users}
 }
 func (s *authService) SignUp(ctx context.Context, request domainmodel.SignUpRequest) error {

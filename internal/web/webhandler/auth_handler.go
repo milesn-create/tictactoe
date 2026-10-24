@@ -5,17 +5,18 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"tictactoe/domain"
+
 	"tictactoe/domain/domainerror"
+	"tictactoe/domain/domainservice"
 	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
 )
 
 type AuthHandler struct {
-	serv domain.AuthService
+	serv domainservice.AuthService
 }
 
-func NewAuthHandler(serv domain.AuthService) *AuthHandler {
+func NewAuthHandler(serv domainservice.AuthService) *AuthHandler {
 	return &AuthHandler{serv: serv}
 }
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {

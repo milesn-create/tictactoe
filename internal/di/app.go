@@ -10,8 +10,8 @@ import (
 	"tictactoe/datasource/postgres"
 	"tictactoe/datasource/repository"
 	"tictactoe/datasource/service"
-	"tictactoe/domain"
 	"tictactoe/domain/domainrepository"
+	"tictactoe/domain/domainservice"
 	"tictactoe/web/webhandler"
 	"tictactoe/web/webmiddleware"
 	"time"
@@ -36,7 +36,7 @@ var Module = fx.Options(
 	fx.Invoke(runServer),
 )
 
-func newHandler(serv domain.Service, repo domainrepository.GameRepository) *webhandler.GameHandler {
+func newHandler(serv domainservice.Service, repo domainrepository.GameRepository) *webhandler.GameHandler {
 	return webhandler.NewGameHandler(serv, repo)
 }
 func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {

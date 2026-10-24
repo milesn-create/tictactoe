@@ -4,15 +4,15 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
+	"tictactoe/domain/domainservice"
 )
 
 type UserAuthenticator struct {
-	serv domain.AuthService
+	serv domainservice.AuthService
 }
 
-func NewUserAuthenticator(serv domain.AuthService) *UserAuthenticator {
+func NewUserAuthenticator(serv domainservice.AuthService) *UserAuthenticator {
 	return &UserAuthenticator{serv: serv}
 }
 func (a *UserAuthenticator) Wrap(next http.Handler) http.Handler {
