@@ -1,4 +1,4 @@
-package service
+package appservice
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestNextMoveWins(t *testing.T) {
-	s := &gameService{}
+	s := &GameService{}
 	game := domainmodel.Game{
 		Board: domainmodel.Board{
 			{domainmodel.Nought, domainmodel.Nought, domainmodel.Empty},
