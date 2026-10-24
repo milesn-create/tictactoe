@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"tictactoe/datasource/mapper"
+	"tictactoe/datasource/dsmapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
@@ -35,7 +35,7 @@ const (
 )
 
 func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
-	saveGame := mapper.ToDatasource(game)
+	saveGame := dsmapper.ToDatasource(game)
 	board, err := json.Marshal(saveGame.Board)
 	if err != nil {
 		return fmt.Errorf("marshal board: %w", err)
@@ -61,5 +61,5 @@ func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Gam
 	if err != nil {
 		return domainmodel.Game{}, fmt.Errorf("unmarshal board: %w", err)
 	}
-	return mapper.ToDomain(game)
+	return dsmapper.ToDomain(game)
 }

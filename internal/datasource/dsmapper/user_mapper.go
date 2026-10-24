@@ -1,4 +1,4 @@
-package mapper
+package dsmapper
 
 import (
 	"tictactoe/datasource/model"

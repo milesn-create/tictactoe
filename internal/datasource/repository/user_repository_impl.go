@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tictactoe/datasource/mapper"
+	"tictactoe/datasource/dsmapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
@@ -43,11 +43,11 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (domainmo
 		}
 		return domainmodel.User{}, fmt.Errorf("get by login: %w", err)
 	}
-	return mapper.UserToDomain(user), nil
+	return dsmapper.UserToDomain(user), nil
 }
 
 func (r *userRepository) Create(ctx context.Context, user domainmodel.User) error {
-	userDatasource := mapper.UserToDatasource(user)
+	userDatasource := dsmapper.UserToDatasource(user)
 	_, err := r.pool.Exec(ctx, createUserQuery, userDatasource.ID, userDatasource.Login, userDatasource.PasswordHash)
 	if err != nil {
 		var pgErr *pgconn.PgError
