@@ -111,3 +111,28 @@ func IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell) {
 	}
 	return isBoardFull(game.Board), domainmodel.Empty
 }
+func ValidateMove(oldGame, newGame domainmodel.Game) error {
+	if over, _ := IsGameOver(oldGame); over {
+		return domainerror.ErrGameOver
+	}
+	newMoves := 0
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if oldGame.Board[i][j] != domainmodel.Empty && oldGame.Board[i][j] != newGame.Board[i][j] {
+				return domainerror.ErrBoardModified
+			}
+
+			if oldGame.Board[i][j] == domainmodel.Empty && newGame.Board[i][j] != domainmodel.Empty {
+				if newGame.Board[i][j] != domainmodel.Cross {
+					return domainerror.ErrBoardModified
+				}
+				newMoves++
+			}
+		}
+	}
+	if newMoves != 1 {
+		return domainerror.ErrInvalidMovesCount
+	}
+	return nil
+
+}
