@@ -10,4 +10,5 @@ var (
 	ErrUserNotFound       = errors.New("user not found")
 	ErrUserExists         = errors.New("login already exists")
 	ErrInvalidCredentials = errors.New("incorrect password or login")
+	ErrBoardFull          = errors.New("board is full")
 )
