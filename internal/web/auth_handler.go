@@ -30,7 +30,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	err = h.serv.SignUp(ctx, authDomain)
 	if err != nil {
 		if errors.Is(err, domain.ErrUserExists) {
-			http.Error(w, err.Error(), http.StatusConflict)
+			http.Error(w, domain.ErrUserExists.Error(), http.StatusConflict)
 			return
 		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
