@@ -7,8 +7,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"tictactoe/datasource/dspostgres"
 	"tictactoe/datasource/dsrepository"
-	"tictactoe/datasource/postgres"
 	"tictactoe/datasource/service"
 	"tictactoe/domain/domainrepository"
 	"tictactoe/domain/domainservice"
@@ -46,7 +46,7 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	if dbURL == "" {
 		return nil, errors.New("DATABASE_URL is not set")
 	}
-	pool, err := postgres.NewPool(ctx, dbURL)
+	pool, err := dspostgres.NewPool(ctx, dbURL)
 	if err != nil {
 		return nil, err
 	}
