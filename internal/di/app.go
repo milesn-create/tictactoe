@@ -11,7 +11,7 @@ import (
 	"tictactoe/datasource/repository"
 	"tictactoe/datasource/service"
 	"tictactoe/domain"
-	"tictactoe/web"
+	"tictactoe/web/webhandler"
 	"tictactoe/web/webmiddleware"
 	"time"
 
@@ -28,15 +28,15 @@ var Module = fx.Options(
 		repository.NewUserRepository,
 		service.NewUserService,
 		service.NewAuthService,
-		web.NewAuthHandler,
+		webhandler.NewAuthHandler,
 		webmiddleware.NewUserAuthenticator,
 	),
 
 	fx.Invoke(runServer),
 )
 
-func newHandler(serv domain.Service, repo domain.GameRepository) *web.GameHandler {
-	return web.NewGameHandler(serv, repo)
+func newHandler(serv domain.Service, repo domain.GameRepository) *webhandler.GameHandler {
+	return webhandler.NewGameHandler(serv, repo)
 }
 func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -56,7 +56,7 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	return pool, nil
 
 }
-func runServer(lc fx.Lifecycle, handler *web.GameHandler, autHandl *web.AuthHandler, midd *webmiddleware.UserAuthenticator) {
+func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webhandler.AuthHandler, midd *webmiddleware.UserAuthenticator) {
 	mux := http.NewServeMux()
 	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.Handle)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)
