@@ -7,6 +7,7 @@ import (
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -29,22 +30,22 @@ const (
 					   VALUES ($1, $2, $3)`
 )
 
-func (r *userRepository) GetByLogin(ctx context.Context, login string) (domain.User, error) {
+func (r *userRepository) GetByLogin(ctx context.Context, login string) (domainmodel.User, error) {
 	rows, err := r.pool.Query(ctx, getUserByLoginQuery, login)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("failed query get user by login: %w", err)
+		return domainmodel.User{}, fmt.Errorf("failed query get user by login: %w", err)
 	}
 	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[model.User])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.User{}, domain.ErrUserNotFound
+			return domainmodel.User{}, domain.ErrUserNotFound
 		}
-		return domain.User{}, fmt.Errorf("get by login: %w", err)
+		return domainmodel.User{}, fmt.Errorf("get by login: %w", err)
 	}
 	return mapper.UserToDomain(user), nil
 }
 
-func (r *userRepository) Create(ctx context.Context, user domain.User) error {
+func (r *userRepository) Create(ctx context.Context, user domainmodel.User) error {
 	userDatasource := mapper.UserToDatasource(user)
 	_, err := r.pool.Exec(ctx, createUserQuery, userDatasource.ID, userDatasource.Login, userDatasource.PasswordHash)
 	if err != nil {

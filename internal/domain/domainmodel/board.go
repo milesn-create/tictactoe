@@ -1,4 +1,4 @@
-package domain
+package domainmodel
 
 type Cell int
 type Board [3][3]Cell

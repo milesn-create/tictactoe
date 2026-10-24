@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 )
 
 var (
@@ -19,20 +20,20 @@ func NewService(repo domain.GameRepository) domain.Service {
 
 }
 
-func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
+func (s *gameService) NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 	over, _ := s.IsGameOver(game)
 	if over {
-		return domain.Game{}, domain.ErrGameOver
+		return domainmodel.Game{}, domain.ErrGameOver
 	}
 	bestI := -1
 	bestJ := -1
 	bestScore := -2
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if game.Board[i][j] == domain.Empty {
-				game.Board[i][j] = domain.Nought
+			if game.Board[i][j] == domainmodel.Empty {
+				game.Board[i][j] = domainmodel.Nought
 				score := minimax(game.Board, false)
-				game.Board[i][j] = domain.Empty
+				game.Board[i][j] = domainmodel.Empty
 				if score > bestScore {
 					bestScore = score
 					bestI = i
@@ -42,19 +43,19 @@ func (s *gameService) NextMove(game domain.Game) (domain.Game, error) {
 		}
 	}
 	if bestI == -1 {
-		return domain.Game{}, ErrBoardFull
+		return domainmodel.Game{}, ErrBoardFull
 	}
-	game.Board[bestI][bestJ] = domain.Nought
+	game.Board[bestI][bestJ] = domainmodel.Nought
 	return game, nil
 }
 
-func (s *gameService) ValidateBoard(ctx context.Context, game domain.Game) error {
+func (s *gameService) ValidateBoard(ctx context.Context, game domainmodel.Game) error {
 	oldGame, err := s.repo.Get(ctx, game.ID)
 	if err != nil {
 		if !errors.Is(err, domain.ErrGameNotFound) {
 			return err
 		}
-		oldGame = domain.Game{ID: game.ID}
+		oldGame = domainmodel.Game{ID: game.ID}
 	}
 	if over, _ := s.IsGameOver(oldGame); over {
 		return domain.ErrGameOver
@@ -62,12 +63,12 @@ func (s *gameService) ValidateBoard(ctx context.Context, game domain.Game) error
 	newMoves := 0
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if oldGame.Board[i][j] != domain.Empty && oldGame.Board[i][j] != game.Board[i][j] {
+			if oldGame.Board[i][j] != domainmodel.Empty && oldGame.Board[i][j] != game.Board[i][j] {
 				return domain.ErrBoardModified
 			}
 
-			if oldGame.Board[i][j] == domain.Empty && game.Board[i][j] != domain.Empty {
-				if game.Board[i][j] != domain.Cross {
+			if oldGame.Board[i][j] == domainmodel.Empty && game.Board[i][j] != domainmodel.Empty {
+				if game.Board[i][j] != domainmodel.Cross {
 					return domain.ErrBoardModified
 				}
 				newMoves++
@@ -80,32 +81,32 @@ func (s *gameService) ValidateBoard(ctx context.Context, game domain.Game) error
 	return nil
 
 }
-func (s *gameService) IsGameOver(game domain.Game) (bool, domain.Cell) {
+func (s *gameService) IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell) {
 	winner := findWinner(game.Board)
-	if winner != domain.Empty {
+	if winner != domainmodel.Empty {
 		return true, winner
 	}
-	return isBoardFull(game.Board), domain.Empty
+	return isBoardFull(game.Board), domainmodel.Empty
 }
-func findWinner(board domain.Board) domain.Cell {
+func findWinner(board domainmodel.Board) domainmodel.Cell {
 	for i := 0; i < 3; i++ {
-		if board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][2] != domain.Empty {
+		if board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][2] != domainmodel.Empty {
 			return board[i][0]
 		}
-		if board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[2][i] != domain.Empty {
+		if board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[2][i] != domainmodel.Empty {
 			return board[0][i]
 		}
 	}
-	if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != domain.Empty) ||
-		(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != domain.Empty) {
+	if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != domainmodel.Empty) ||
+		(board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != domainmodel.Empty) {
 		return board[1][1]
 	}
-	return domain.Empty
+	return domainmodel.Empty
 }
-func isBoardFull(board domain.Board) bool {
+func isBoardFull(board domainmodel.Board) bool {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if board[i][j] == domain.Empty {
+			if board[i][j] == domainmodel.Empty {
 				return false
 			}
 		}
@@ -113,12 +114,12 @@ func isBoardFull(board domain.Board) bool {
 	return true
 
 }
-func minimax(board domain.Board, isComputerTurn bool) int {
+func minimax(board domainmodel.Board, isComputerTurn bool) int {
 	winner := findWinner(board)
-	if winner == domain.Cross {
+	if winner == domainmodel.Cross {
 		return -1
 	}
-	if winner == domain.Nought {
+	if winner == domainmodel.Nought {
 		return 1
 	}
 	if isBoardFull(board) {
@@ -128,10 +129,10 @@ func minimax(board domain.Board, isComputerTurn bool) int {
 		best := -2
 		for i := 0; i < 3; i++ {
 			for j := 0; j < 3; j++ {
-				if board[i][j] == domain.Empty {
-					board[i][j] = domain.Nought
+				if board[i][j] == domainmodel.Empty {
+					board[i][j] = domainmodel.Nought
 					score := minimax(board, false)
-					board[i][j] = domain.Empty
+					board[i][j] = domainmodel.Empty
 					if score > best {
 						best = score
 					}
@@ -144,10 +145,10 @@ func minimax(board domain.Board, isComputerTurn bool) int {
 	best := 2
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if board[i][j] == domain.Empty {
-				board[i][j] = domain.Cross
+			if board[i][j] == domainmodel.Empty {
+				board[i][j] = domainmodel.Cross
 				score := minimax(board, true)
-				board[i][j] = domain.Empty
+				board[i][j] = domainmodel.Empty
 				if score < best {
 					best = score
 				}

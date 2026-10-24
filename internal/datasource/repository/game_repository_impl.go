@@ -8,6 +8,7 @@ import (
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -32,7 +33,7 @@ const (
 					WHERE id = $1`
 )
 
-func (r *gameRepository) Save(ctx context.Context, game domain.Game) error {
+func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
 	saveGame := mapper.ToDatasource(game)
 	board, err := json.Marshal(saveGame.Board)
 	if err != nil {
@@ -45,19 +46,19 @@ func (r *gameRepository) Save(ctx context.Context, game domain.Game) error {
 	return nil
 }
 
-func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domain.Game, error) {
+func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Game, error) {
 	var board []byte
 	err := r.pool.QueryRow(ctx, getGameQuery, id).Scan(&board)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Game{}, domain.ErrGameNotFound
+			return domainmodel.Game{}, domain.ErrGameNotFound
 		}
-		return domain.Game{}, fmt.Errorf("get game : %w", err)
+		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
 	}
 	game := model.Game{ID: id}
 	err = json.Unmarshal(board, &game.Board)
 	if err != nil {
-		return domain.Game{}, fmt.Errorf("unmarshal board: %w", err)
+		return domainmodel.Game{}, fmt.Errorf("unmarshal board: %w", err)
 	}
 	return mapper.ToDomain(game)
 }

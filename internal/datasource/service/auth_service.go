@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -17,13 +18,13 @@ type authService struct {
 func NewAuthService(users domain.UserService) domain.AuthService {
 	return &authService{users: users}
 }
-func (s *authService) SignUp(ctx context.Context, request domain.SignUpRequest) error {
+func (s *authService) SignUp(ctx context.Context, request domainmodel.SignUpRequest) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("failed generate hash from password: %w", err)
 	}
 	id := uuid.New()
-	user := domain.User{ID: id, Login: request.Login, PasswordHash: string(passwordHash)}
+	user := domainmodel.User{ID: id, Login: request.Login, PasswordHash: string(passwordHash)}
 	err = s.users.Create(ctx, user)
 	if err != nil {
 		return fmt.Errorf("failed create user: %w", err)

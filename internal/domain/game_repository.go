@@ -2,11 +2,12 @@ package domain
 
 import (
 	"context"
+	"tictactoe/domain/domainmodel"
 
 	"github.com/google/uuid"
 )
 
 type GameRepository interface {
-	Get(ctx context.Context, id uuid.UUID) (Game, error)
-	Save(ctx context.Context, game Game) error
+	Get(ctx context.Context, id uuid.UUID) (domainmodel.Game, error)
+	Save(ctx context.Context, game domainmodel.Game) error
 }

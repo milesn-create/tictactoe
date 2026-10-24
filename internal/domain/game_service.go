@@ -1,9 +1,12 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"tictactoe/domain/domainmodel"
+)
 
 type Service interface {
-	NextMove(game Game) (Game, error)
-	ValidateBoard(ctx context.Context, game Game) error
-	IsGameOver(game Game) (bool, Cell)
+	NextMove(game domainmodel.Game) (domainmodel.Game, error)
+	ValidateBoard(ctx context.Context, game domainmodel.Game) error
+	IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell)
 }

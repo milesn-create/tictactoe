@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
 
@@ -14,7 +15,7 @@ import (
 )
 
 type gameSaver interface {
-	Save(ctx context.Context, game domain.Game) error
+	Save(ctx context.Context, game domainmodel.Game) error
 }
 type GameHandler struct {
 	service domain.Service

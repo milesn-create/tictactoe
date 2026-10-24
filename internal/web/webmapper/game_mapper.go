@@ -2,7 +2,7 @@ package webmapper
 
 import (
 	"errors"
-	"tictactoe/domain"
+	"tictactoe/domain/domainmodel"
 	"tictactoe/web/webmodel"
 )
 
@@ -11,26 +11,26 @@ var (
 	ErrInvalidCellValue = errors.New("cell must be -1, 0 or 1")
 )
 
-func ToDomain(game webmodel.Game) (domain.Game, error) {
+func ToDomain(game webmodel.Game) (domainmodel.Game, error) {
 	if len(game.Board) != 3 {
-		return domain.Game{}, ErrInvalidBoardSize
+		return domainmodel.Game{}, ErrInvalidBoardSize
 	}
-	var board domain.Board
+	var board domainmodel.Board
 	for i := 0; i < 3; i++ {
 		if len(game.Board[i]) != 3 {
-			return domain.Game{}, ErrInvalidBoardSize
+			return domainmodel.Game{}, ErrInvalidBoardSize
 		}
 		for j := 0; j < 3; j++ {
-			if game.Board[i][j] != int(domain.Nought) && game.Board[i][j] != int(domain.Cross) && game.Board[i][j] != int(domain.Empty) {
-				return domain.Game{}, ErrInvalidCellValue
+			if game.Board[i][j] != int(domainmodel.Nought) && game.Board[i][j] != int(domainmodel.Cross) && game.Board[i][j] != int(domainmodel.Empty) {
+				return domainmodel.Game{}, ErrInvalidCellValue
 			}
-			board[i][j] = domain.Cell(game.Board[i][j])
+			board[i][j] = domainmodel.Cell(game.Board[i][j])
 		}
 	}
-	return domain.Game{ID: game.ID, Board: board}, nil
+	return domainmodel.Game{ID: game.ID, Board: board}, nil
 
 }
-func ToWeb(game domain.Game) webmodel.Game {
+func ToWeb(game domainmodel.Game) webmodel.Game {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
 		board[i] = make([]int, 3)

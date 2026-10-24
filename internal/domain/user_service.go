@@ -1,8 +1,11 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"tictactoe/domain/domainmodel"
+)
 
 type UserService interface {
-	GetByLogin(ctx context.Context, login string) (User, error)
-	Create(ctx context.Context, user User) error
+	GetByLogin(ctx context.Context, login string) (domainmodel.User, error)
+	Create(ctx context.Context, user domainmodel.User) error
 }
