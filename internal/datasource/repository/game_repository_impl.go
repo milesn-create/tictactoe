@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
-	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
+	"tictactoe/domain/domainrepository"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -20,7 +20,7 @@ type gameRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewGameRepository(pool *pgxpool.Pool) domain.GameRepository {
+func NewGameRepository(pool *pgxpool.Pool) domainrepository.GameRepository {
 	return &gameRepository{pool: pool}
 }
 

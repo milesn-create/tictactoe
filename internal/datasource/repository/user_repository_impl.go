@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
-	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
+	"tictactoe/domain/domainrepository"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -19,7 +19,7 @@ type userRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewUserRepository(pool *pgxpool.Pool) domain.UserRepository {
+func NewUserRepository(pool *pgxpool.Pool) domainrepository.UserRepository {
 	return &userRepository{pool: pool}
 }
 

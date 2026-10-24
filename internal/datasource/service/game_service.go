@@ -6,6 +6,7 @@ import (
 	"tictactoe/domain"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
+	"tictactoe/domain/domainrepository"
 )
 
 var (
@@ -13,10 +14,10 @@ var (
 )
 
 type gameService struct {
-	repo domain.GameRepository
+	repo domainrepository.GameRepository
 }
 
-func NewService(repo domain.GameRepository) domain.Service {
+func NewService(repo domainrepository.GameRepository) domain.Service {
 	return &gameService{repo: repo}
 
 }

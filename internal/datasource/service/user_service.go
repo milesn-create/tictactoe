@@ -4,13 +4,14 @@ import (
 	"context"
 	"tictactoe/domain"
 	"tictactoe/domain/domainmodel"
+	"tictactoe/domain/domainrepository"
 )
 
 type userService struct {
-	repo domain.UserRepository
+	repo domainrepository.UserRepository
 }
 
-func NewUserService(repo domain.UserRepository) domain.UserService {
+func NewUserService(repo domainrepository.UserRepository) domain.UserService {
 	return &userService{repo: repo}
 }
 func (s *userService) Create(ctx context.Context, user domainmodel.User) error {
