@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
 )
@@ -31,8 +32,8 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 	err = h.serv.SignUp(ctx, authDomain)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserExists) {
-			http.Error(w, domain.ErrUserExists.Error(), http.StatusConflict)
+		if errors.Is(err, domainerror.ErrUserExists) {
+			http.Error(w, domainerror.ErrUserExists.Error(), http.StatusConflict)
 			return
 		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -51,7 +52,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := h.serv.Authorize(ctx, login, password)
 	if err != nil {
-		if errors.Is(err, domain.ErrInvalidCredentials) {
+		if errors.Is(err, domainerror.ErrInvalidCredentials) {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}

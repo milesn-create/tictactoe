@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 
 	"github.com/google/uuid"
@@ -34,15 +35,15 @@ func (s *authService) SignUp(ctx context.Context, request domainmodel.SignUpRequ
 func (s *authService) Authorize(ctx context.Context, login, password string) (uuid.UUID, error) {
 	user, err := s.users.GetByLogin(ctx, login)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserNotFound) {
-			return uuid.Nil, domain.ErrInvalidCredentials
+		if errors.Is(err, domainerror.ErrUserNotFound) {
+			return uuid.Nil, domainerror.ErrInvalidCredentials
 		}
 		return uuid.Nil, fmt.Errorf("failed get by login: %w", err)
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return uuid.Nil, domain.ErrInvalidCredentials
+			return uuid.Nil, domainerror.ErrInvalidCredentials
 		}
 		return uuid.Nil, fmt.Errorf("compare hash and password: %w", err)
 	}

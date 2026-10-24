@@ -8,6 +8,7 @@ import (
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 
 	"github.com/google/uuid"
@@ -51,7 +52,7 @@ func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Gam
 	err := r.pool.QueryRow(ctx, getGameQuery, id).Scan(&board)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domainmodel.Game{}, domain.ErrGameNotFound
+			return domainmodel.Game{}, domainerror.ErrGameNotFound
 		}
 		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
 	}

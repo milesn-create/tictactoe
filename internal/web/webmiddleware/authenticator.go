@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 )
 
 type UserAuthenticator struct {
@@ -25,7 +26,7 @@ func (a *UserAuthenticator) Wrap(next http.Handler) http.Handler {
 		ctx := r.Context()
 		_, err := a.serv.Authorize(ctx, login, password)
 		if err != nil {
-			if errors.Is(err, domain.ErrInvalidCredentials) {
+			if errors.Is(err, domainerror.ErrInvalidCredentials) {
 				w.Header().Set("WWW-Authenticate", `Basic realm="tictactoe"`)
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return

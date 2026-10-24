@@ -7,6 +7,7 @@ import (
 	"tictactoe/datasource/mapper"
 	"tictactoe/datasource/model"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 
 	"github.com/jackc/pgx/v5"
@@ -38,7 +39,7 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (domainmo
 	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[model.User])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domainmodel.User{}, domain.ErrUserNotFound
+			return domainmodel.User{}, domainerror.ErrUserNotFound
 		}
 		return domainmodel.User{}, fmt.Errorf("get by login: %w", err)
 	}
@@ -51,7 +52,7 @@ func (r *userRepository) Create(ctx context.Context, user domainmodel.User) erro
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return domain.ErrUserExists
+			return domainerror.ErrUserExists
 		}
 		return fmt.Errorf("failed query create user: %w", err)
 	}

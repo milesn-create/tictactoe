@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
@@ -52,11 +53,11 @@ func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := h.service.ValidateBoard(ctx, game); err != nil {
-		if errors.Is(err, domain.ErrGameNotFound) {
+		if errors.Is(err, domainerror.ErrGameNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		if errors.Is(err, domain.ErrBoardModified) || errors.Is(err, domain.ErrInvalidMovesCount) || errors.Is(err, domain.ErrGameOver) {
+		if errors.Is(err, domainerror.ErrBoardModified) || errors.Is(err, domainerror.ErrInvalidMovesCount) || errors.Is(err, domainerror.ErrGameOver) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"tictactoe/domain"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 )
 
@@ -23,7 +24,7 @@ func NewService(repo domain.GameRepository) domain.Service {
 func (s *gameService) NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 	over, _ := s.IsGameOver(game)
 	if over {
-		return domainmodel.Game{}, domain.ErrGameOver
+		return domainmodel.Game{}, domainerror.ErrGameOver
 	}
 	bestI := -1
 	bestJ := -1
@@ -52,31 +53,31 @@ func (s *gameService) NextMove(game domainmodel.Game) (domainmodel.Game, error) 
 func (s *gameService) ValidateBoard(ctx context.Context, game domainmodel.Game) error {
 	oldGame, err := s.repo.Get(ctx, game.ID)
 	if err != nil {
-		if !errors.Is(err, domain.ErrGameNotFound) {
+		if !errors.Is(err, domainerror.ErrGameNotFound) {
 			return err
 		}
 		oldGame = domainmodel.Game{ID: game.ID}
 	}
 	if over, _ := s.IsGameOver(oldGame); over {
-		return domain.ErrGameOver
+		return domainerror.ErrGameOver
 	}
 	newMoves := 0
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if oldGame.Board[i][j] != domainmodel.Empty && oldGame.Board[i][j] != game.Board[i][j] {
-				return domain.ErrBoardModified
+				return domainerror.ErrBoardModified
 			}
 
 			if oldGame.Board[i][j] == domainmodel.Empty && game.Board[i][j] != domainmodel.Empty {
 				if game.Board[i][j] != domainmodel.Cross {
-					return domain.ErrBoardModified
+					return domainerror.ErrBoardModified
 				}
 				newMoves++
 			}
 		}
 	}
 	if newMoves != 1 {
-		return domain.ErrInvalidMovesCount
+		return domainerror.ErrInvalidMovesCount
 	}
 	return nil
 
