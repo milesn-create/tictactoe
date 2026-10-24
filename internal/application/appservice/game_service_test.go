@@ -6,7 +6,7 @@ import (
 )
 
 func TestNextMoveWins(t *testing.T) {
-	s := &GameService{}
+	s := &gameService{}
 	game := domainmodel.Game{
 		Board: domainmodel.Board{
 			{domainmodel.Nought, domainmodel.Nought, domainmodel.Empty},
