@@ -4,6 +4,8 @@ import (
 	"errors"
 	"tictactoe/datasource/dsmodel"
 	"tictactoe/domain/domainmodel"
+
+	"github.com/google/uuid"
 )
 
 var ErrInvalidBoardSize = errors.New("board must be 3x3")
@@ -25,7 +27,8 @@ func ToDomain(game dsmodel.Game) (domainmodel.Game, error) {
 
 		}
 	}
-	return domainmodel.Game{ID: game.ID, Board: board}, nil
+	state := domainmodel.GameState(game.State)
+	return domainmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: ptrToUUID(game.TurnPlayerID), WinnerID: ptrToUUID(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: ptrToUUID(game.CrossPlayerID), NoughtPlayerID: ptrToUUID(game.NoughtPlayerID)}, nil
 
 }
 func ToDatasource(game domainmodel.Game) dsmodel.Game {
@@ -36,5 +39,18 @@ func ToDatasource(game domainmodel.Game) dsmodel.Game {
 			board[i][j] = int(game.Board[i][j])
 		}
 	}
-	return dsmodel.Game{ID: game.ID, Board: board}
+	state := int(game.State)
+	return dsmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: uuidToPtr(game.TurnPlayerID), WinnerID: uuidToPtr(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: uuidToPtr(game.CrossPlayerID), NoughtPlayerID: uuidToPtr(game.NoughtPlayerID)}
+}
+func uuidToPtr(id uuid.UUID) *uuid.UUID {
+	if id == uuid.Nil {
+		return nil
+	}
+	return &id
+}
+func ptrToUUID(id *uuid.UUID) uuid.UUID {
+	if id == nil {
+		return uuid.Nil
+	}
+	return *id
 }
