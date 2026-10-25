@@ -7,4 +7,5 @@ const (
 	StatePlayerTurn
 	StateDraw
 	StateWon
+	StateArchived
 )
