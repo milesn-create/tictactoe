@@ -79,24 +79,24 @@ func UpdateState(game domainmodel.Game) domainmodel.Game {
 	}
 	return game
 }
-func minimax(board domainmodel.Board, isComputerTurn bool) int {
+func minimax(board domainmodel.Board, turn domainmodel.Cell, computerBadge, playerBadge domainmodel.Cell) int {
 	winner := findWinner(board)
-	if winner == domainmodel.Cross {
+	if winner == playerBadge {
 		return -1
 	}
-	if winner == domainmodel.Nought {
+	if winner == computerBadge {
 		return 1
 	}
 	if isBoardFull(board) {
 		return 0
 	}
-	if isComputerTurn {
+	if turn == computerBadge {
 		best := -2
 		for i := 0; i < 3; i++ {
 			for j := 0; j < 3; j++ {
 				if board[i][j] == domainmodel.Empty {
-					board[i][j] = domainmodel.Nought
-					score := minimax(board, false)
+					board[i][j] = computerBadge
+					score := minimax(board, playerBadge, computerBadge, playerBadge)
 					board[i][j] = domainmodel.Empty
 					if score > best {
 						best = score
@@ -111,8 +111,8 @@ func minimax(board domainmodel.Board, isComputerTurn bool) int {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if board[i][j] == domainmodel.Empty {
-				board[i][j] = domainmodel.Cross
-				score := minimax(board, true)
+				board[i][j] = playerBadge
+				score := minimax(board, computerBadge, computerBadge, playerBadge)
 				board[i][j] = domainmodel.Empty
 				if score < best {
 					best = score
@@ -135,7 +135,7 @@ func NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 		for j := 0; j < 3; j++ {
 			if game.Board[i][j] == domainmodel.Empty {
 				game.Board[i][j] = domainmodel.Nought
-				score := minimax(game.Board, false)
+				score := minimax(game.Board, domainmodel.Cross, domainmodel.Nought, domainmodel.Cross)
 				game.Board[i][j] = domainmodel.Empty
 				if score > bestScore {
 					bestScore = score
