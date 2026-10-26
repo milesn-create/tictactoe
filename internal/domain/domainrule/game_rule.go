@@ -128,14 +128,16 @@ func NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 	if over {
 		return domainmodel.Game{}, domainerror.ErrGameOver
 	}
+	computerBadge := nextBadge(game.Board)
+	playerBadge := -computerBadge
 	bestI := -1
 	bestJ := -1
 	bestScore := -2
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if game.Board[i][j] == domainmodel.Empty {
-				game.Board[i][j] = domainmodel.Nought
-				score := minimax(game.Board, domainmodel.Cross, domainmodel.Nought, domainmodel.Cross)
+				game.Board[i][j] = computerBadge
+				score := minimax(game.Board, playerBadge, computerBadge, playerBadge)
 				game.Board[i][j] = domainmodel.Empty
 				if score > bestScore {
 					bestScore = score
@@ -148,7 +150,7 @@ func NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 	if bestI == -1 {
 		return domainmodel.Game{}, domainerror.ErrBoardFull
 	}
-	game.Board[bestI][bestJ] = domainmodel.Nought
+	game.Board[bestI][bestJ] = computerBadge
 	return game, nil
 }
 
