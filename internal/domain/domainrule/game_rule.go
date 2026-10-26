@@ -162,6 +162,9 @@ func IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell) {
 	return isBoardFull(game.Board), domainmodel.Empty
 }
 func ValidateMove(oldGame, newGame domainmodel.Game) error {
+	if oldGame.State == domainmodel.StateArchived {
+		return domainerror.ErrGameOver
+	}
 	if over, _ := IsGameOver(oldGame); over {
 		return domainerror.ErrGameOver
 	}
