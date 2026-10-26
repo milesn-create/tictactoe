@@ -25,11 +25,11 @@ func NewGameRepository(pool *pgxpool.Pool) domainrepository.GameRepository {
 }
 
 const (
-	saveGameQuery = `INSERT INTO games(id, board)
-					 VALUES ($1, $2)
+	saveGameQuery = `INSERT INTO games(id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id)
+					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 					 ON CONFLICT (id)
-					 DO UPDATE SET board= EXCLUDED.board`
-	getGameQuery = `SELECT board 
+					 DO UPDATE SET board = EXCLUDED.board,state = EXCLUDED.state,turn_player_id = EXCLUDED.turn_player_id,winner_id = EXCLUDED.winner_id,vs_computer = EXCLUDED.vs_computer,cross_player_id = EXCLUDED.cross_player_id,nought_player_id = EXCLUDED.nought_player_id `
+	getGameQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id
 					FROM games 
 					WHERE id = $1`
 )
@@ -40,7 +40,7 @@ func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error 
 	if err != nil {
 		return fmt.Errorf("marshal board: %w", err)
 	}
-	_, err = r.pool.Exec(ctx, saveGameQuery, saveGame.ID, board)
+	_, err = r.pool.Exec(ctx, saveGameQuery, saveGame.ID, board, saveGame.State, saveGame.TurnPlayerID, saveGame.WinnerID, saveGame.VsComputer, saveGame.CrossPlayerID, saveGame.NoughtPlayerID)
 	if err != nil {
 		return fmt.Errorf("save game: %w", err)
 	}
@@ -48,18 +48,17 @@ func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error 
 }
 
 func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Game, error) {
-	var board []byte
-	err := r.pool.QueryRow(ctx, getGameQuery, id).Scan(&board)
+	rows, err := r.pool.Query(ctx, getGameQuery, id)
+	if err != nil {
+		return domainmodel.Game{}, fmt.Errorf("failed getGameQuery: %w", err)
+
+	}
+	game, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[dsmodel.Game])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domainmodel.Game{}, domainerror.ErrGameNotFound
 		}
 		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
-	}
-	game := dsmodel.Game{ID: id}
-	err = json.Unmarshal(board, &game.Board)
-	if err != nil {
-		return domainmodel.Game{}, fmt.Errorf("unmarshal board: %w", err)
 	}
 	return dsmapper.ToDomain(game)
 }
