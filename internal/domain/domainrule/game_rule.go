@@ -164,6 +164,7 @@ func ValidateMove(oldGame, newGame domainmodel.Game) error {
 		return domainerror.ErrGameOver
 	}
 	newMoves := 0
+	expected := nextBadge(oldGame.Board)
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			if oldGame.Board[i][j] != domainmodel.Empty && oldGame.Board[i][j] != newGame.Board[i][j] {
@@ -171,7 +172,7 @@ func ValidateMove(oldGame, newGame domainmodel.Game) error {
 			}
 
 			if oldGame.Board[i][j] == domainmodel.Empty && newGame.Board[i][j] != domainmodel.Empty {
-				if newGame.Board[i][j] != domainmodel.Cross {
+				if newGame.Board[i][j] != expected {
 					return domainerror.ErrBoardModified
 				}
 				newMoves++
