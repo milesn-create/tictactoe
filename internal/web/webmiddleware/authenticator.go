@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainservice"
+	"tictactoe/web/webcontext"
 )
 
 type UserAuthenticator struct {
@@ -24,7 +25,7 @@ func (a *UserAuthenticator) Wrap(next http.Handler) http.Handler {
 			return
 		}
 		ctx := r.Context()
-		_, err := a.serv.Authorize(ctx, login, password)
+		id, err := a.serv.Authorize(ctx, login, password)
 		if err != nil {
 			if errors.Is(err, domainerror.ErrInvalidCredentials) {
 				w.Header().Set("WWW-Authenticate", `Basic realm="tictactoe"`)
@@ -35,7 +36,9 @@ func (a *UserAuthenticator) Wrap(next http.Handler) http.Handler {
 			log.Println(err)
 			return
 		}
-		next.ServeHTTP(w, r)
+		ctx = webcontext.WithUserID(ctx, id)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 
 }
