@@ -16,3 +16,6 @@ type GameResponse struct {
 	CrossPlayerID  *uuid.UUID `json:"cross_player_id,omitempty"`
 	NoughtPlayerID *uuid.UUID `json:"nought_player_id,omitempty"`
 }
+type CreateGameRequest struct {
+	VsComputer bool `json:"vs_computer"`
+}
