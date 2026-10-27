@@ -32,6 +32,9 @@ const (
 	getGameQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id
 					FROM games 
 					WHERE id = $1`
+	getAvailableQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id
+						FROM games 
+						WHERE state = $1 AND vs_computer= false AND cross_player_id <> $2`
 )
 
 func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
@@ -61,4 +64,24 @@ func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Gam
 		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
 	}
 	return dsmapper.ToDomain(game)
+}
+func (r *gameRepository) GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
+	rows, err := r.pool.Query(ctx, getAvailableQuery, int(domainmodel.StateWaitingPlayers), userID)
+	if err != nil {
+		return []domainmodel.Game{}, fmt.Errorf("failed getAvailableQuery: %w", err)
+	}
+	games, err := pgx.CollectRows(rows, pgx.RowToStructByName[dsmodel.Game])
+	if err != nil {
+		return []domainmodel.Game{}, fmt.Errorf("get available game: %w", err)
+	}
+	domainGames := make([]domainmodel.Game, 0, len(games))
+	for i := range len(games) {
+		domainGame, err := dsmapper.ToDomain(games[i])
+		if err != nil {
+			return []domainmodel.Game{}, fmt.Errorf("map game to domain: %w", err)
+		}
+		domainGames = append(domainGames, domainGame)
+	}
+	return domainGames, nil
+
 }
