@@ -12,4 +12,5 @@ type Service interface {
 	ValidateBoard(ctx context.Context, game domainmodel.Game) error
 	IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell)
 	CreateGame(ctx context.Context, userID uuid.UUID, vsComputer bool) (domainmodel.Game, error)
+	GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
 }

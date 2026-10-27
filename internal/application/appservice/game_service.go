@@ -51,3 +51,10 @@ func (s *gameService) CreateGame(ctx context.Context, userID uuid.UUID, vsComput
 	}
 	return game, nil
 }
+func (s *gameService) GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
+	games, err := s.repo.GetAvailable(ctx, userID)
+	if err != nil {
+		return []domainmodel.Game{}, fmt.Errorf("get available to app service: %w", err)
+	}
+	return games, nil
+}
