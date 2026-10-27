@@ -77,3 +77,12 @@ func uuidToPtr(id uuid.UUID) *uuid.UUID {
 	}
 	return &id
 }
+
+func ToResponseList(games []domainmodel.Game) []webmodel.GameResponse {
+	gamesResp := make([]webmodel.GameResponse, 0, len(games))
+	for i := range len(games) {
+		gamesResp = append(gamesResp, ToResponse(games[i]))
+	}
+	return gamesResp
+
+}
