@@ -84,5 +84,4 @@ func ToResponseList(games []domainmodel.Game) []webmodel.GameResponse {
 		gamesResp = append(gamesResp, ToResponse(games[i]))
 	}
 	return gamesResp
-
 }
