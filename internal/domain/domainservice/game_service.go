@@ -13,4 +13,5 @@ type Service interface {
 	IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell)
 	CreateGame(ctx context.Context, userID uuid.UUID, vsComputer bool) (domainmodel.Game, error)
 	GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
+	JoinGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error)
 }

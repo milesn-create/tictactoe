@@ -58,3 +58,19 @@ func (s *gameService) GetAvailable(ctx context.Context, userID uuid.UUID) ([]dom
 	}
 	return games, nil
 }
+func (s *gameService) JoinGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error) {
+	game, err := s.repo.Get(ctx, gameID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	gameDone, err := domainrule.JoinGame(game, userID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	err = s.repo.Save(ctx, gameDone)
+	if err != nil {
+		return domainmodel.Game{}, fmt.Errorf("save joined game: %w", err)
+	}
+	return gameDone, nil
+
+}
