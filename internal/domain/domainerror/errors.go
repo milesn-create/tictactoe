@@ -13,4 +13,7 @@ var (
 	ErrBoardFull          = errors.New("board is full")
 	ErrGameNotJoinable    = errors.New("game not joinable")
 	ErrJoinOwnGame        = errors.New("cannot join your own game")
+	ErrNotParticipant     = errors.New("user is not participant of the game")
+	ErrNotYourTurn        = errors.New("not your turn")
+	ErrGameNotStarted     = errors.New("game not started")
 )
