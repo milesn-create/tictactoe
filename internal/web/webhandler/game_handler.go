@@ -129,3 +129,30 @@ func (h *GameHandler) Create(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+func (h *GameHandler) Available(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, ok := webcontext.UserID(ctx)
+	if !ok {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println("failed get id from webcontext")
+		return
+	}
+	games, err := h.service.GetAvailable(ctx, userID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	responseGames := webmapper.ToResponseList(games)
+	data, err := json.Marshal(responseGames)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+	}
+}
