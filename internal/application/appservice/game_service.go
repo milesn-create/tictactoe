@@ -74,3 +74,27 @@ func (s *gameService) JoinGame(ctx context.Context, gameID uuid.UUID, userID uui
 	return gameDone, nil
 
 }
+
+func (s *gameService) MakeMove(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, board domainmodel.Board) (domainmodel.Game, error) {
+	game, err := s.repo.Get(ctx, gameID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	err = domainrule.ValidateTurn(game, userID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	candidate := game
+	candidate.Board = board
+	err = domainrule.ValidateMove(game, candidate)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	game = domainrule.UpdateState(candidate)
+	err = s.repo.Save(ctx, game)
+	if err != nil {
+		return domainmodel.Game{}, fmt.Errorf("save game after move: %w", err)
+	}
+	return game, nil
+
+}
