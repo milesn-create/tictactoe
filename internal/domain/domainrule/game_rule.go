@@ -200,6 +200,9 @@ func JoinGame(game domainmodel.Game, userID uuid.UUID) (domainmodel.Game, error)
 	return UpdateState(game), nil
 }
 func ValidateTurn(game domainmodel.Game, userID uuid.UUID) error {
+	if userID == uuid.Nil {
+		return domainerror.ErrNotParticipant
+	}
 	if userID != game.CrossPlayerID && userID != game.NoughtPlayerID {
 		return domainerror.ErrNotParticipant
 	}
