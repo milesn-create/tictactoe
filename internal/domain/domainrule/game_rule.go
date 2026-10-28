@@ -33,52 +33,6 @@ func isBoardFull(board domainmodel.Board) bool {
 	return true
 
 }
-func nextBadge(board domainmodel.Board) domainmodel.Cell {
-	countX := 0
-	countO := 0
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			if board[i][j] == domainmodel.Cross {
-				countX++
-			}
-			if board[i][j] == domainmodel.Nought {
-				countO++
-			}
-		}
-	}
-	if countO == countX {
-		return domainmodel.Cross
-	}
-	return domainmodel.Nought
-}
-func playerByBadge(game domainmodel.Game, badge domainmodel.Cell) uuid.UUID {
-	if badge == domainmodel.Cross {
-		return game.CrossPlayerID
-	}
-	if badge == domainmodel.Nought {
-		return game.NoughtPlayerID
-	}
-	return uuid.Nil
-}
-func UpdateState(game domainmodel.Game) domainmodel.Game {
-	if game.State == domainmodel.StateArchived {
-		return game
-	}
-	game.TurnPlayerID = uuid.Nil
-	game.WinnerID = uuid.Nil
-	if !game.VsComputer && (game.CrossPlayerID == uuid.Nil || game.NoughtPlayerID == uuid.Nil) {
-		game.State = domainmodel.StateWaitingPlayers
-	} else if w := findWinner(game.Board); w != domainmodel.Empty {
-		game.State = domainmodel.StateWon
-		game.WinnerID = playerByBadge(game, w)
-	} else if isBoardFull(game.Board) {
-		game.State = domainmodel.StateDraw
-	} else {
-		game.State = domainmodel.StatePlayerTurn
-		game.TurnPlayerID = playerByBadge(game, nextBadge(game.Board))
-	}
-	return game
-}
 func minimax(board domainmodel.Board, turn domainmodel.Cell, computerBadge, playerBadge domainmodel.Cell) int {
 	winner := findWinner(board)
 	if winner == playerBadge {
@@ -161,6 +115,52 @@ func IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell) {
 	}
 	return isBoardFull(game.Board), domainmodel.Empty
 }
+func nextBadge(board domainmodel.Board) domainmodel.Cell {
+	countX := 0
+	countO := 0
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if board[i][j] == domainmodel.Cross {
+				countX++
+			}
+			if board[i][j] == domainmodel.Nought {
+				countO++
+			}
+		}
+	}
+	if countO == countX {
+		return domainmodel.Cross
+	}
+	return domainmodel.Nought
+}
+func playerByBadge(game domainmodel.Game, badge domainmodel.Cell) uuid.UUID {
+	if badge == domainmodel.Cross {
+		return game.CrossPlayerID
+	}
+	if badge == domainmodel.Nought {
+		return game.NoughtPlayerID
+	}
+	return uuid.Nil
+}
+func UpdateState(game domainmodel.Game) domainmodel.Game {
+	if game.State == domainmodel.StateArchived {
+		return game
+	}
+	game.TurnPlayerID = uuid.Nil
+	game.WinnerID = uuid.Nil
+	if !game.VsComputer && (game.CrossPlayerID == uuid.Nil || game.NoughtPlayerID == uuid.Nil) {
+		game.State = domainmodel.StateWaitingPlayers
+	} else if w := findWinner(game.Board); w != domainmodel.Empty {
+		game.State = domainmodel.StateWon
+		game.WinnerID = playerByBadge(game, w)
+	} else if isBoardFull(game.Board) {
+		game.State = domainmodel.StateDraw
+	} else {
+		game.State = domainmodel.StatePlayerTurn
+		game.TurnPlayerID = playerByBadge(game, nextBadge(game.Board))
+	}
+	return game
+}
 func ValidateMove(oldGame, newGame domainmodel.Game) error {
 	if oldGame.State == domainmodel.StateArchived {
 		return domainerror.ErrGameOver
@@ -188,4 +188,14 @@ func ValidateMove(oldGame, newGame domainmodel.Game) error {
 		return domainerror.ErrInvalidMovesCount
 	}
 	return nil
+}
+func JoinGame(game domainmodel.Game, userID uuid.UUID) (domainmodel.Game, error) {
+	if game.State != domainmodel.StateWaitingPlayers {
+		return domainmodel.Game{}, domainerror.ErrGameNotJoinable
+	}
+	if game.CrossPlayerID == userID {
+		return domainmodel.Game{}, domainerror.ErrJoinOwnGame
+	}
+	game.NoughtPlayerID = userID
+	return UpdateState(game), nil
 }

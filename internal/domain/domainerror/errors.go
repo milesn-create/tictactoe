@@ -11,4 +11,6 @@ var (
 	ErrUserExists         = errors.New("login already exists")
 	ErrInvalidCredentials = errors.New("incorrect password or login")
 	ErrBoardFull          = errors.New("board is full")
+	ErrGameNotJoinable    = errors.New("game not joinable")
+	ErrJoinOwnGame        = errors.New("cannot join your own game")
 )
