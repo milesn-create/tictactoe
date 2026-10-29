@@ -10,6 +10,7 @@ import (
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainrepository"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,6 +30,9 @@ const (
 					   WHERE login = $1`
 	createUserQuery = `INSERT INTO users(id, login, password_hash)
 					   VALUES ($1, $2, $3)`
+	getUserByIDQuery = `SELECT id, login,password_hash
+				   		FROM users 
+				   		WHERE id = $1`
 )
 
 func (r *userRepository) GetByLogin(ctx context.Context, login string) (domainmodel.User, error) {
@@ -57,4 +61,18 @@ func (r *userRepository) Create(ctx context.Context, user domainmodel.User) erro
 		return fmt.Errorf("failed query create user: %w", err)
 	}
 	return nil
+}
+func (r *userRepository) GetByID(ctx context.Context, userID uuid.UUID) (domainmodel.User, error) {
+	rows, err := r.pool.Query(ctx, getUserByIDQuery, userID)
+	if err != nil {
+		return domainmodel.User{}, fmt.Errorf("failed query get user by id: %w", err)
+	}
+	user, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[dsmodel.User])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domainmodel.User{}, domainerror.ErrUserNotFound
+		}
+		return domainmodel.User{}, fmt.Errorf("get by id: %w", err)
+	}
+	return dsmapper.UserToDomain(user), nil
 }
