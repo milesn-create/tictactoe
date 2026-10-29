@@ -32,56 +32,50 @@ func NewGameHandler(serv domainservice.Service, saver gameSaver) *GameHandler {
 	}
 
 }
-func (h *GameHandler) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *GameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	strID := r.PathValue("id")
-	id, err := uuid.Parse(strID)
+	gameIDstr := r.PathValue("id")
+	gameID, err := uuid.Parse(gameIDstr)
 	if err != nil {
 		http.Error(w, "invalid game id", http.StatusBadRequest)
 		return
 	}
-	var webGame webmodel.Game
-	if err := json.NewDecoder(r.Body).Decode(&webGame); err != nil {
+	userID, ok := webcontext.UserID(ctx)
+	if !ok {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println("failed get id from webcontext")
+		return
+	}
+	var req webmodel.MakeMoveRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	game, err := webmapper.ToDomain(webGame)
+	board, err := webmapper.ToBoard(req.Board)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if game.ID != id {
-		http.Error(w, "game id mismatch", http.StatusBadRequest)
-		return
-	}
-	if err := h.service.ValidateBoard(ctx, game); err != nil {
-		if errors.Is(err, domainerror.ErrGameNotFound) {
+	gameResult, err := h.service.MakeMove(ctx, gameID, userID, board)
+	if err != nil {
+		switch {
+		case errors.Is(err, domainerror.ErrGameNotFound):
 			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		if errors.Is(err, domainerror.ErrBoardModified) || errors.Is(err, domainerror.ErrInvalidMovesCount) || errors.Is(err, domainerror.ErrGameOver) {
+		case errors.Is(err, domainerror.ErrNotParticipant):
+			http.Error(w, err.Error(), http.StatusForbidden)
+		case errors.Is(err, domainerror.ErrNotYourTurn), errors.Is(err, domainerror.ErrGameNotStarted), errors.Is(err, domainerror.ErrGameOver):
+			http.Error(w, err.Error(), http.StatusConflict)
+		case errors.Is(err, domainerror.ErrBoardModified), errors.Is(err, domainerror.ErrInvalidMovesCount):
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-	over, _ := h.service.IsGameOver(game)
-	if !over {
-		game, err = h.service.NextMove(game)
-		if err != nil {
+		default:
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			log.Println(err)
-			return
 		}
-	}
-	if err := h.saver.Save(ctx, game); err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		log.Println(err)
 		return
 	}
-	data, err := json.Marshal(webmapper.ToWeb(game))
+	response := webmapper.ToResponse(gameResult)
+	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)

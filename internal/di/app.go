@@ -59,7 +59,7 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 }
 func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webhandler.AuthHandler, midd *webmiddleware.UserAuthenticator) {
 	mux := http.NewServeMux()
-	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.Handle)))
+	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.MakeMove)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)
 	mux.HandleFunc("POST /signin", autHandl.SignIn)
 	mux.Handle("POST /game", midd.Wrap(http.HandlerFunc(handler.Create)))
