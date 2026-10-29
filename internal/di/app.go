@@ -60,6 +60,7 @@ func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webha
 	mux.Handle("POST /game", midd.Wrap(http.HandlerFunc(handler.Create)))
 	mux.Handle("GET /game", midd.Wrap(http.HandlerFunc(handler.Available)))
 	mux.Handle("POST /game/{id}/join", midd.Wrap(http.HandlerFunc(handler.Join)))
+	mux.Handle("GET /game/{id}", midd.Wrap(http.HandlerFunc(handler.Get)))
 	//log.Fatal(http.ListenAndServe(":8080", mux))
 	server := &http.Server{Addr: ":8080", Handler: mux}
 	lc.Append(fx.Hook{
