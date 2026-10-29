@@ -19,3 +19,6 @@ type GameResponse struct {
 type CreateGameRequest struct {
 	VsComputer bool `json:"vs_computer"`
 }
+type MakeMoveRequest struct {
+	Board [][]int `json:"board"`
+}
