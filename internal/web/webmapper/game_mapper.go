@@ -8,25 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func ToDomain(game webmodel.Game) (domainmodel.Game, error) {
-	if len(game.Board) != 3 {
-		return domainmodel.Game{}, domainerror.ErrInvalidBoardSize
-	}
-	var board domainmodel.Board
-	for i := 0; i < 3; i++ {
-		if len(game.Board[i]) != 3 {
-			return domainmodel.Game{}, domainerror.ErrInvalidBoardSize
-		}
-		for j := 0; j < 3; j++ {
-			if game.Board[i][j] != int(domainmodel.Nought) && game.Board[i][j] != int(domainmodel.Cross) && game.Board[i][j] != int(domainmodel.Empty) {
-				return domainmodel.Game{}, domainerror.ErrInvalidCellValue
-			}
-			board[i][j] = domainmodel.Cell(game.Board[i][j])
-		}
-	}
-	return domainmodel.Game{ID: game.ID, Board: board}, nil
-
-}
 func ToBoard(board [][]int) (domainmodel.Board, error) {
 	if len(board) != 3 {
 		return domainmodel.Board{}, domainerror.ErrInvalidBoardSize
@@ -44,16 +25,6 @@ func ToBoard(board [][]int) (domainmodel.Board, error) {
 		}
 	}
 	return boardDomain, nil
-}
-func ToWeb(game domainmodel.Game) webmodel.Game {
-	board := make([][]int, 3)
-	for i := 0; i < 3; i++ {
-		board[i] = make([]int, 3)
-		for j := 0; j < 3; j++ {
-			board[i][j] = int(game.Board[i][j])
-		}
-	}
-	return webmodel.Game{ID: game.ID, Board: board}
 }
 func ToResponse(game domainmodel.Game) webmodel.GameResponse {
 	board := make([][]int, 3)
