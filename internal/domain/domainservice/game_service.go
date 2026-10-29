@@ -12,4 +12,5 @@ type Service interface {
 	GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
 	JoinGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error)
 	MakeMove(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, board domainmodel.Board) (domainmodel.Game, error)
+	GetGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error)
 }

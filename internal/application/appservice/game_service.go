@@ -84,3 +84,14 @@ func (s *gameService) MakeMove(ctx context.Context, gameID uuid.UUID, userID uui
 	}
 	return game, nil
 }
+func (s *gameService) GetGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error) {
+	game, err := s.repo.Get(ctx, gameID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	err = domainrule.ValidateView(game, userID)
+	if err != nil {
+		return domainmodel.Game{}, err
+	}
+	return game, nil
+}
