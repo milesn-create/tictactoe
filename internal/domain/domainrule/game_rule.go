@@ -162,10 +162,7 @@ func UpdateState(game domainmodel.Game) domainmodel.Game {
 	return game
 }
 func ValidateMove(oldGame, newGame domainmodel.Game) error {
-	if oldGame.State == domainmodel.StateArchived {
-		return domainerror.ErrGameOver
-	}
-	if over, _ := IsGameOver(oldGame); over {
+	if oldGame.State == domainmodel.StateArchived || oldGame.State == domainmodel.StateDraw || oldGame.State == domainmodel.StateWon {
 		return domainerror.ErrGameOver
 	}
 	newMoves := 0
