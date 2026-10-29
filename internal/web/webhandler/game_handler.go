@@ -16,10 +16,10 @@ import (
 )
 
 type GameHandler struct {
-	service domainservice.Service
+	service domainservice.GameService
 }
 
-func NewGameHandler(serv domainservice.Service) *GameHandler {
+func NewGameHandler(serv domainservice.GameService) *GameHandler {
 	return &GameHandler{
 		service: serv,
 	}

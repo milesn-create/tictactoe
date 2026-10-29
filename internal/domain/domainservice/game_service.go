@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Service interface {
+type GameService interface {
 	CreateGame(ctx context.Context, userID uuid.UUID, vsComputer bool) (domainmodel.Game, error)
 	GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
 	JoinGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error)
