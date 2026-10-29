@@ -1,30 +1,25 @@
 package webmapper
 
 import (
-	"errors"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/web/webmodel"
 
 	"github.com/google/uuid"
 )
 
-var (
-	ErrInvalidBoardSize = errors.New("board must be 3x3")
-	ErrInvalidCellValue = errors.New("cell must be -1, 0 or 1")
-)
-
 func ToDomain(game webmodel.Game) (domainmodel.Game, error) {
 	if len(game.Board) != 3 {
-		return domainmodel.Game{}, ErrInvalidBoardSize
+		return domainmodel.Game{}, domainerror.ErrInvalidBoardSize
 	}
 	var board domainmodel.Board
 	for i := 0; i < 3; i++ {
 		if len(game.Board[i]) != 3 {
-			return domainmodel.Game{}, ErrInvalidBoardSize
+			return domainmodel.Game{}, domainerror.ErrInvalidBoardSize
 		}
 		for j := 0; j < 3; j++ {
 			if game.Board[i][j] != int(domainmodel.Nought) && game.Board[i][j] != int(domainmodel.Cross) && game.Board[i][j] != int(domainmodel.Empty) {
-				return domainmodel.Game{}, ErrInvalidCellValue
+				return domainmodel.Game{}, domainerror.ErrInvalidCellValue
 			}
 			board[i][j] = domainmodel.Cell(game.Board[i][j])
 		}
@@ -34,16 +29,16 @@ func ToDomain(game webmodel.Game) (domainmodel.Game, error) {
 }
 func ToBoard(board [][]int) (domainmodel.Board, error) {
 	if len(board) != 3 {
-		return domainmodel.Board{}, ErrInvalidBoardSize
+		return domainmodel.Board{}, domainerror.ErrInvalidBoardSize
 	}
 	var boardDomain domainmodel.Board
 	for i := 0; i < 3; i++ {
 		if len(board[i]) != 3 {
-			return domainmodel.Board{}, ErrInvalidBoardSize
+			return domainmodel.Board{}, domainerror.ErrInvalidBoardSize
 		}
 		for j := 0; j < 3; j++ {
 			if board[i][j] != int(domainmodel.Cross) && board[i][j] != int(domainmodel.Nought) && board[i][j] != int(domainmodel.Empty) {
-				return domainmodel.Board{}, ErrInvalidCellValue
+				return domainmodel.Board{}, domainerror.ErrInvalidCellValue
 			}
 			boardDomain[i][j] = domainmodel.Cell(board[i][j])
 		}
