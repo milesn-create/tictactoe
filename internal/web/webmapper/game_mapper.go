@@ -32,6 +32,24 @@ func ToDomain(game webmodel.Game) (domainmodel.Game, error) {
 	return domainmodel.Game{ID: game.ID, Board: board}, nil
 
 }
+func ToBoard(board [][]int) (domainmodel.Board, error) {
+	if len(board) != 3 {
+		return domainmodel.Board{}, ErrInvalidBoardSize
+	}
+	var boardDomain domainmodel.Board
+	for i := 0; i < 3; i++ {
+		if len(board[i]) != 3 {
+			return domainmodel.Board{}, ErrInvalidBoardSize
+		}
+		for j := 0; j < 3; j++ {
+			if board[i][j] != int(domainmodel.Cross) && board[i][j] != int(domainmodel.Nought) && board[i][j] != int(domainmodel.Empty) {
+				return domainmodel.Board{}, ErrInvalidCellValue
+			}
+			boardDomain[i][j] = domainmodel.Cell(board[i][j])
+		}
+	}
+	return boardDomain, nil
+}
 func ToWeb(game domainmodel.Game) webmodel.Game {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
