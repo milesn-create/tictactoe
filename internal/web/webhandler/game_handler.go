@@ -1,14 +1,12 @@
 package webhandler
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"log"
 	"net/http"
 	"tictactoe/domain/domainerror"
-	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainservice"
 	"tictactoe/web/webcontext"
 	"tictactoe/web/webmapper"
@@ -17,18 +15,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type gameSaver interface {
-	Save(ctx context.Context, game domainmodel.Game) error
-}
 type GameHandler struct {
 	service domainservice.Service
-	saver   gameSaver
 }
 
-func NewGameHandler(serv domainservice.Service, saver gameSaver) *GameHandler {
+func NewGameHandler(serv domainservice.Service) *GameHandler {
 	return &GameHandler{
 		service: serv,
-		saver:   saver,
 	}
 
 }
