@@ -91,10 +91,16 @@ func (s *gameService) MakeMove(ctx context.Context, gameID uuid.UUID, userID uui
 		return domainmodel.Game{}, err
 	}
 	game = domainrule.UpdateState(candidate)
+	if game.VsComputer && game.State == domainmodel.StatePlayerTurn {
+		game, err = domainrule.NextMove(game)
+		if err != nil {
+			return domainmodel.Game{}, fmt.Errorf("computer make move: %w", err)
+		}
+		game = domainrule.UpdateState(game)
+	}
 	err = s.repo.Save(ctx, game)
 	if err != nil {
 		return domainmodel.Game{}, fmt.Errorf("save game after move: %w", err)
 	}
 	return game, nil
-
 }
