@@ -217,3 +217,15 @@ func ValidateTurn(game domainmodel.Game, userID uuid.UUID) error {
 	}
 	return nil
 }
+func ValidateView(game domainmodel.Game, userID uuid.UUID) error {
+	if game.State == domainmodel.StateArchived {
+		return nil
+	}
+	if userID == uuid.Nil {
+		return domainerror.ErrNotParticipant
+	}
+	if userID != game.CrossPlayerID && userID != game.NoughtPlayerID {
+		return domainerror.ErrNotParticipant
+	}
+	return nil
+}
