@@ -78,8 +78,7 @@ func minimax(board domainmodel.Board, turn domainmodel.Cell, computerBadge, play
 	return best
 }
 func NextMove(game domainmodel.Game) (domainmodel.Game, error) {
-	over, _ := IsGameOver(game)
-	if over {
+	if game.State != domainmodel.StatePlayerTurn {
 		return domainmodel.Game{}, domainerror.ErrGameOver
 	}
 	computerBadge := nextBadge(game.Board)
@@ -108,13 +107,6 @@ func NextMove(game domainmodel.Game) (domainmodel.Game, error) {
 	return game, nil
 }
 
-func IsGameOver(game domainmodel.Game) (bool, domainmodel.Cell) {
-	winner := findWinner(game.Board)
-	if winner != domainmodel.Empty {
-		return true, winner
-	}
-	return isBoardFull(game.Board), domainmodel.Empty
-}
 func nextBadge(board domainmodel.Board) domainmodel.Cell {
 	countX := 0
 	countO := 0
