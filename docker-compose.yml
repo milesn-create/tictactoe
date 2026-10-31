@@ -25,6 +25,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
-        
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgres://tictactoe:tictactoe@db:5432/tictactoe
+    ports: 
+      - "8080:8080"
+    depends_on:
+      migrate: 
+        condition: service_completed_successfully
+      
 volumes:
   pgdata:
