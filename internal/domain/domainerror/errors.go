@@ -18,4 +18,5 @@ var (
 	ErrGameNotStarted     = errors.New("game not started")
 	ErrInvalidBoardSize   = errors.New("board must be 3x3")
 	ErrInvalidCellValue   = errors.New("cell must be -1, 0 or 1")
+	ErrInvalidToken       = errors.New("invalid token")
 )
