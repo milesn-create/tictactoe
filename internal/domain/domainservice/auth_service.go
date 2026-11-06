@@ -3,11 +3,11 @@ package domainservice
 import (
 	"context"
 	"tictactoe/domain/domainmodel"
-
-	"github.com/google/uuid"
 )
 
 type AuthService interface {
 	SignUp(ctx context.Context, request domainmodel.SignUpRequest) error
-	Authorize(ctx context.Context, login, password string) (uuid.UUID, error)
+	Authorize(ctx context.Context, request domainmodel.JwtRequest) (domainmodel.JwtResponse, error)
+	UpdateAccessToken(request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error)
+	UpdateRefreshToken(request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error)
 }
