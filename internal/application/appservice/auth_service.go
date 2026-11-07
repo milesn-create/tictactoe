@@ -50,7 +50,7 @@ func (s *authService) Authorize(ctx context.Context, request domainmodel.JwtRequ
 	}
 	accessToken, err := s.jwtProvider.GenerateAccessToken(user.ID)
 	if err != nil {
-		return domainmodel.JwtResponse{}, fmt.Errorf("generate access token by authorize: %w", err)
+		return domainmodel.JwtResponse{}, fmt.Errorf("generate access toke by authorize: %w", err)
 	}
 	refreshToken, err := s.jwtProvider.GenerateRefreshToken(user.ID)
 	if err != nil {

@@ -46,7 +46,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var signInModel webmodel.SignInRequest
+	var signInModel webmodel.JwtRequest
 	if err := json.NewDecoder(r.Body).Decode(&signInModel); err != nil {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
