@@ -46,12 +46,17 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	login, password, ok := r.BasicAuth()
-	if !ok {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+	var signInModel webmodel.SignInRequest
+	if err := json.NewDecoder(r.Body).Decode(&signInModel); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	id, err := h.serv.Authorize(ctx, login, password)
+	signInDomain, err := webmapper.SignInToDomain(signInModel)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	jwtResponseDomain, err := h.serv.Authorize(ctx, signInDomain)
 	if err != nil {
 		if errors.Is(err, domainerror.ErrInvalidCredentials) {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -61,7 +66,9 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	data, err := json.Marshal(webmodel.SignInResponse{ID: id})
+	jwtResponseWeb := webmapper.SignInToWeb(jwtResponseDomain)
+
+	data, err := json.Marshal(jwtResponseWeb)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)

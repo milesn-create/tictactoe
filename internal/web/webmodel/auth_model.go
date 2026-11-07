@@ -1,11 +1,15 @@
 package webmodel
 
-import "github.com/google/uuid"
-
 type SignUpRequest struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 type SignInResponse struct {
-	ID uuid.UUID `json:"id"`
+	Type         string `json:"type"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+type SignInRequest struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }

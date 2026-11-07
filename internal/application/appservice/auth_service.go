@@ -13,12 +13,12 @@ import (
 )
 
 type authService struct {
-	users    domainservice.UserService
-	provider domainservice.JwtProvider
+	users       domainservice.UserService
+	jwtProvider domainservice.JwtProvider
 }
 
-func NewAuthService(users domainservice.UserService, provider domainservice.JwtProvider) domainservice.AuthService {
-	return &authService{users: users, provider: provider}
+func NewAuthService(users domainservice.UserService, jwt domainservice.JwtProvider) domainservice.AuthService {
+	return &authService{users: users, jwtProvider: jwt}
 }
 func (s *authService) SignUp(ctx context.Context, request domainmodel.SignUpRequest) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
@@ -48,13 +48,13 @@ func (s *authService) Authorize(ctx context.Context, request domainmodel.JwtRequ
 		}
 		return domainmodel.JwtResponse{}, fmt.Errorf("compare hash and password: %w", err)
 	}
-	accessToken, err := s.provider.GenerateAccessToken(user.ID)
+	accessToken, err := s.jwtProvider.GenerateAccessToken(user.ID)
 	if err != nil {
-		return domainmodel.JwtResponse{}, fmt.Errorf("generate access toke by authorize: %w", err)
+		return domainmodel.JwtResponse{}, fmt.Errorf("generate access token by authorize: %w", err)
 	}
-	refreshToken, err := s.provider.GenerateRefreshToken(user.ID)
+	refreshToken, err := s.jwtProvider.GenerateRefreshToken(user.ID)
 	if err != nil {
-		return domainmodel.JwtResponse{}, fmt.Errorf("generate refresh toke by authorize: %w", err)
+		return domainmodel.JwtResponse{}, fmt.Errorf("generate refresh token by authorize: %w", err)
 	}
 	return domainmodel.JwtResponse{Type: "Bearer", AccessToken: accessToken, RefreshToken: refreshToken}, nil
 
@@ -68,19 +68,19 @@ func (s *authService) UpdateRefreshToken(request domainmodel.RefreshJwtRequest) 
 
 }
 func (s *authService) rotateTokens(refreshToken string) (domainmodel.JwtResponse, error) {
-	err := s.provider.ValidateRefreshToken(refreshToken)
+	err := s.jwtProvider.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}
-	userID, err := s.provider.GetUUIDFromToken(refreshToken)
+	userID, err := s.jwtProvider.GetUUIDFromToken(refreshToken)
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}
-	newAccessToken, err := s.provider.GenerateAccessToken(userID)
+	newAccessToken, err := s.jwtProvider.GenerateAccessToken(userID)
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}
-	newRefreshToken, err := s.provider.GenerateRefreshToken(userID)
+	newRefreshToken, err := s.jwtProvider.GenerateRefreshToken(userID)
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}

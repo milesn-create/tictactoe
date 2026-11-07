@@ -22,3 +22,17 @@ func SignUpToDomain(request webmodel.SignUpRequest) (domainmodel.SignUpRequest, 
 	}
 	return domainmodel.SignUpRequest{Login: login, Password: request.Password}, nil
 }
+func SignInToDomain(request webmodel.SignInRequest) (domainmodel.JwtRequest, error) {
+	login := strings.TrimSpace(request.Login)
+	if len(login) == 0 || strings.Contains(login, ":") {
+		return domainmodel.JwtRequest{}, ErrInvalidLogin
+	}
+	if len(strings.TrimSpace(request.Password)) == 0 || len(request.Password) > 72 {
+		return domainmodel.JwtRequest{}, ErrInvalidPassword
+	}
+	return domainmodel.JwtRequest{Login: login, Password: request.Password}, nil
+
+}
+func SignInToWeb(response domainmodel.JwtResponse) webmodel.SignInResponse {
+	return webmodel.SignInResponse{Type: response.Type, AccessToken: response.AccessToken, RefreshToken: response.RefreshToken}
+}
