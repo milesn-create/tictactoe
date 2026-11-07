@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"tictactoe/domain/domainerror"
+	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainservice"
 	"tictactoe/web/webmapper"
 	"tictactoe/web/webmodel"
@@ -66,9 +67,49 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	jwtResponseWeb := webmapper.SignInToWeb(jwtResponseDomain)
+	jwtResponseWeb := webmapper.JwtToWeb(jwtResponseDomain)
 
 	data, err := json.Marshal(jwtResponseWeb)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func (h *AuthHandler) UpdateAccessToken(w http.ResponseWriter, r *http.Request) {
+	h.serveRefresh(w, r, h.serv.UpdateAccessToken)
+}
+
+func (h *AuthHandler) UpdateRefreshToken(w http.ResponseWriter, r *http.Request) {
+	h.serveRefresh(w, r, h.serv.UpdateRefreshToken)
+}
+
+func (h *AuthHandler) serveRefresh(w http.ResponseWriter, r *http.Request, update func(domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error)) {
+	var jwtRequest webmodel.RefreshJwtRequest
+	err := json.NewDecoder(r.Body).Decode(&jwtRequest)
+	if err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	domainjwtRequest, err := webmapper.RefreshToDomain(jwtRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response, err := update(domainjwtRequest)
+	if err != nil {
+		w.Header().Set("WWW-Authenticate", `Bearer`)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	responseWeb := webmapper.JwtToWeb(response)
+	data, err := json.Marshal(responseWeb)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)

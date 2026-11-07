@@ -19,4 +19,7 @@ var (
 	ErrInvalidBoardSize   = errors.New("board must be 3x3")
 	ErrInvalidCellValue   = errors.New("cell must be -1, 0 or 1")
 	ErrInvalidToken       = errors.New("invalid token")
+	ErrInvalidLogin       = errors.New("invalid login input")
+	ErrInvalidPassword    = errors.New("invalid password input")
+	ErrEmptyRefreshToken  = errors.New("empty refresh token")
 )
