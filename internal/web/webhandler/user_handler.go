@@ -39,7 +39,7 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	response := webmapper.ToUserResponse(domainUser)
+	response := webmapper.UserToWeb(domainUser)
 	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)

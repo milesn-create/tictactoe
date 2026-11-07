@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func ToBoard(board [][]int) (domainmodel.Board, error) {
+func BoardToDomain(board [][]int) (domainmodel.Board, error) {
 	if len(board) != 3 {
 		return domainmodel.Board{}, domainerror.ErrInvalidBoardSize
 	}
@@ -26,7 +26,7 @@ func ToBoard(board [][]int) (domainmodel.Board, error) {
 	}
 	return boardDomain, nil
 }
-func ToResponse(game domainmodel.Game) webmodel.GameResponse {
+func GameToWeb(game domainmodel.Game) webmodel.GameResponse {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
 		board[i] = make([]int, 3)
@@ -62,10 +62,10 @@ func uuidToPtr(id uuid.UUID) *uuid.UUID {
 	return &id
 }
 
-func ToResponseList(games []domainmodel.Game) []webmodel.GameResponse {
+func ListGamesToWeb(games []domainmodel.Game) []webmodel.GameResponse {
 	gamesResp := make([]webmodel.GameResponse, 0, len(games))
 	for i := range len(games) {
-		gamesResp = append(gamesResp, ToResponse(games[i]))
+		gamesResp = append(gamesResp, GameToWeb(games[i]))
 	}
 	return gamesResp
 }

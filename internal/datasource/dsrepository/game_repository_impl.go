@@ -38,7 +38,7 @@ const (
 )
 
 func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
-	saveGame := dsmapper.ToDatasource(game)
+	saveGame := dsmapper.GameToDatasource(game)
 	board, err := json.Marshal(saveGame.Board)
 	if err != nil {
 		return fmt.Errorf("marshal board: %w", err)
@@ -63,7 +63,7 @@ func (r *gameRepository) Get(ctx context.Context, id uuid.UUID) (domainmodel.Gam
 		}
 		return domainmodel.Game{}, fmt.Errorf("get game : %w", err)
 	}
-	return dsmapper.ToDomain(game)
+	return dsmapper.GameToDomain(game)
 }
 func (r *gameRepository) GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
 	rows, err := r.pool.Query(ctx, getAvailableQuery, int(domainmodel.StateWaitingPlayers), userID)
@@ -76,7 +76,7 @@ func (r *gameRepository) GetAvailable(ctx context.Context, userID uuid.UUID) ([]
 	}
 	domainGames := make([]domainmodel.Game, 0, len(games))
 	for i := range len(games) {
-		domainGame, err := dsmapper.ToDomain(games[i])
+		domainGame, err := dsmapper.GameToDomain(games[i])
 		if err != nil {
 			return []domainmodel.Game{}, fmt.Errorf("map game to domain: %w", err)
 		}

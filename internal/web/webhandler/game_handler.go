@@ -45,7 +45,7 @@ func (h *GameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
-	board, err := webmapper.ToBoard(req.Board)
+	board, err := webmapper.BoardToDomain(req.Board)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -67,7 +67,7 @@ func (h *GameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	response := webmapper.ToResponse(gameResult)
+	response := webmapper.GameToWeb(gameResult)
 	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -102,7 +102,7 @@ func (h *GameHandler) Create(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	gameResp := webmapper.ToResponse(game)
+	gameResp := webmapper.GameToWeb(game)
 	data, err := json.Marshal(gameResp)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -130,7 +130,7 @@ func (h *GameHandler) Available(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	responseGames := webmapper.ToResponseList(games)
+	responseGames := webmapper.ListGamesToWeb(games)
 	data, err := json.Marshal(responseGames)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -175,7 +175,7 @@ func (h *GameHandler) Join(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	response := webmapper.ToResponse(game)
+	response := webmapper.GameToWeb(game)
 	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -215,7 +215,7 @@ func (h *GameHandler) Get(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	response := webmapper.ToResponse(gameGet)
+	response := webmapper.GameToWeb(gameGet)
 	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)

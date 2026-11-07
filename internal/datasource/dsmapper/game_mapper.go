@@ -10,7 +10,7 @@ import (
 
 var ErrInvalidBoardSize = errors.New("board must be 3x3")
 
-func ToDomain(game dsmodel.Game) (domainmodel.Game, error) {
+func GameToDomain(game dsmodel.Game) (domainmodel.Game, error) {
 
 	if len(game.Board) != 3 {
 		return domainmodel.Game{}, ErrInvalidBoardSize
@@ -31,7 +31,7 @@ func ToDomain(game dsmodel.Game) (domainmodel.Game, error) {
 	return domainmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: ptrToUUID(game.TurnPlayerID), WinnerID: ptrToUUID(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: ptrToUUID(game.CrossPlayerID), NoughtPlayerID: ptrToUUID(game.NoughtPlayerID)}, nil
 
 }
-func ToDatasource(game domainmodel.Game) dsmodel.Game {
+func GameToDatasource(game domainmodel.Game) dsmodel.Game {
 	board := make([][]int, 3)
 	for i := 0; i < 3; i++ {
 		board[i] = make([]int, 3)
