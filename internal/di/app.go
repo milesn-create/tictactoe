@@ -72,13 +72,14 @@ func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webha
 	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.MakeMove)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)
 	mux.HandleFunc("POST /signin", autHandl.SignIn)
-	mux.HandleFunc("POST /refresh/access", autHandl.UpdateAccessToken)
-	mux.HandleFunc("POST /refresh/refresh", autHandl.UpdateRefreshToken)
+	mux.HandleFunc("POST /update/access", autHandl.UpdateAccessToken)
+	mux.HandleFunc("POST /update/refresh", autHandl.UpdateRefreshToken)
 	mux.Handle("POST /game", midd.Wrap(http.HandlerFunc(handler.Create)))
 	mux.Handle("GET /game", midd.Wrap(http.HandlerFunc(handler.Available)))
 	mux.Handle("POST /game/{id}/join", midd.Wrap(http.HandlerFunc(handler.Join)))
 	mux.Handle("GET /game/{id}", midd.Wrap(http.HandlerFunc(handler.Get)))
-	mux.Handle("GET /user/{id}", midd.Wrap(http.HandlerFunc(userHandl.Get)))
+	mux.Handle("GET /user/{id}", midd.Wrap(http.HandlerFunc(userHandl.GetUserByIdFromPath)))
+	mux.Handle("GET /user/me", midd.Wrap(http.HandlerFunc(userHandl.GetUserByIdFromCtx)))
 	//log.Fatal(http.ListenAndServe(":8080", mux))
 	server := &http.Server{Addr: ":8080", Handler: mux}
 	lc.Append(fx.Hook{
