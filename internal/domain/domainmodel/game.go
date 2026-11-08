@@ -1,6 +1,10 @@
 package domainmodel
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Game struct {
 	ID             uuid.UUID
@@ -11,4 +15,5 @@ type Game struct {
 	VsComputer     bool
 	CrossPlayerID  uuid.UUID
 	NoughtPlayerID uuid.UUID
+	CreatedAt      *time.Time
 }

@@ -25,14 +25,14 @@ func NewGameRepository(pool *pgxpool.Pool) domainrepository.GameRepository {
 }
 
 const (
-	saveGameQuery = `INSERT INTO games(id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id)
-					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	saveGameQuery = `INSERT INTO games(id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id,created_at)
+					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 					 ON CONFLICT (id)
 					 DO UPDATE SET board = EXCLUDED.board,state = EXCLUDED.state,turn_player_id = EXCLUDED.turn_player_id,winner_id = EXCLUDED.winner_id,vs_computer = EXCLUDED.vs_computer,cross_player_id = EXCLUDED.cross_player_id,nought_player_id = EXCLUDED.nought_player_id `
-	getGameQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id
+	getGameQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id,created_at
 					FROM games 
 					WHERE id = $1`
-	getAvailableQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id
+	getAvailableQuery = `SELECT id, board,state,turn_player_id,winner_id,vs_computer,cross_player_id,nought_player_id,created_at
 						FROM games 
 						WHERE state = $1 AND vs_computer= false AND cross_player_id <> $2`
 )
@@ -43,7 +43,7 @@ func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error 
 	if err != nil {
 		return fmt.Errorf("marshal board: %w", err)
 	}
-	_, err = r.pool.Exec(ctx, saveGameQuery, saveGame.ID, board, saveGame.State, saveGame.TurnPlayerID, saveGame.WinnerID, saveGame.VsComputer, saveGame.CrossPlayerID, saveGame.NoughtPlayerID)
+	_, err = r.pool.Exec(ctx, saveGameQuery, saveGame.ID, board, saveGame.State, saveGame.TurnPlayerID, saveGame.WinnerID, saveGame.VsComputer, saveGame.CrossPlayerID, saveGame.NoughtPlayerID, saveGame.CreatedAt)
 	if err != nil {
 		return fmt.Errorf("save game: %w", err)
 	}

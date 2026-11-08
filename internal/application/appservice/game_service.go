@@ -7,6 +7,7 @@ import (
 	"tictactoe/domain/domainrepository"
 	"tictactoe/domain/domainrule"
 	"tictactoe/domain/domainservice"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -25,6 +26,8 @@ func (s *gameService) CreateGame(ctx context.Context, userID uuid.UUID, vsComput
 	game.CrossPlayerID = userID
 	game.VsComputer = vsComputer
 	game = domainrule.UpdateState(game)
+	createdAt := time.Now().UTC()
+	game.CreatedAt = &createdAt
 	err := s.repo.Save(ctx, game)
 	if err != nil {
 		return domainmodel.Game{}, fmt.Errorf("failed create game by save: %w", err)

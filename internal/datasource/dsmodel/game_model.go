@@ -1,6 +1,8 @@
 package dsmodel
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -13,4 +15,5 @@ type Game struct {
 	VsComputer     bool       `db:"vs_computer"`
 	CrossPlayerID  *uuid.UUID `db:"cross_player_id"`
 	NoughtPlayerID *uuid.UUID `db:"nought_player_id"`
+	CreatedAt      *time.Time `db:"created_at"`
 }

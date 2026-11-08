@@ -11,25 +11,20 @@ import (
 var ErrInvalidBoardSize = errors.New("board must be 3x3")
 
 func GameToDomain(game dsmodel.Game) (domainmodel.Game, error) {
-
 	if len(game.Board) != 3 {
 		return domainmodel.Game{}, ErrInvalidBoardSize
-
 	}
 	var board domainmodel.Board
 	for i := 0; i < 3; i++ {
 		if len(game.Board[i]) != 3 {
 			return domainmodel.Game{}, ErrInvalidBoardSize
-
 		}
 		for j := 0; j < 3; j++ {
 			board[i][j] = domainmodel.Cell(game.Board[i][j])
-
 		}
 	}
 	state := domainmodel.GameState(game.State)
-	return domainmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: ptrToUUID(game.TurnPlayerID), WinnerID: ptrToUUID(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: ptrToUUID(game.CrossPlayerID), NoughtPlayerID: ptrToUUID(game.NoughtPlayerID)}, nil
-
+	return domainmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: ptrToUUID(game.TurnPlayerID), WinnerID: ptrToUUID(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: ptrToUUID(game.CrossPlayerID), NoughtPlayerID: ptrToUUID(game.NoughtPlayerID), CreatedAt: game.CreatedAt}, nil
 }
 func GameToDatasource(game domainmodel.Game) dsmodel.Game {
 	board := make([][]int, 3)
@@ -40,7 +35,7 @@ func GameToDatasource(game domainmodel.Game) dsmodel.Game {
 		}
 	}
 	state := int(game.State)
-	return dsmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: uuidToPtr(game.TurnPlayerID), WinnerID: uuidToPtr(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: uuidToPtr(game.CrossPlayerID), NoughtPlayerID: uuidToPtr(game.NoughtPlayerID)}
+	return dsmodel.Game{ID: game.ID, Board: board, State: state, TurnPlayerID: uuidToPtr(game.TurnPlayerID), WinnerID: uuidToPtr(game.WinnerID), VsComputer: game.VsComputer, CrossPlayerID: uuidToPtr(game.CrossPlayerID), NoughtPlayerID: uuidToPtr(game.NoughtPlayerID), CreatedAt: game.CreatedAt}
 }
 func uuidToPtr(id uuid.UUID) *uuid.UUID {
 	if id == uuid.Nil {
