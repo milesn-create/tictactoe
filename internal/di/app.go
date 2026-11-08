@@ -10,6 +10,7 @@ import (
 	"tictactoe/application/appservice"
 	"tictactoe/datasource/dspostgres"
 	"tictactoe/datasource/dsrepository"
+	"tictactoe/domain/domainservice"
 	"tictactoe/web/webhandler"
 	"tictactoe/web/webmiddleware"
 	"time"
@@ -30,6 +31,7 @@ var Module = fx.Options(
 		webhandler.NewAuthHandler,
 		webhandler.NewUserHandler,
 		webmiddleware.NewUserAuthenticator,
+		newJwtProviderFromEnv,
 	),
 
 	fx.Invoke(runServer),
@@ -53,11 +55,25 @@ func newPool(lc fx.Lifecycle) (*pgxpool.Pool, error) {
 	return pool, nil
 
 }
+func newJwtProviderFromEnv() (domainservice.JwtProvider, error) {
+	accessSecret := os.Getenv("JWT_ACCESS_SECRET")
+	if accessSecret == "" {
+		return nil, errors.New("JWT_ACCESS_SECRET is not set")
+	}
+	refreshSecret := os.Getenv("JWT_REFRESH_SECRET")
+	if refreshSecret == "" {
+		return nil, errors.New("JWT_REFRESH_SECRET is not set")
+	}
+	return appservice.NewJwtProvider([]byte(accessSecret), []byte(refreshSecret), (15 * time.Minute), (720 * time.Hour)), nil
+}
+
 func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webhandler.AuthHandler, userHandl *webhandler.UserHandler, midd *webmiddleware.UserAuthenticator) {
 	mux := http.NewServeMux()
 	mux.Handle("POST /game/{id}", midd.Wrap(http.HandlerFunc(handler.MakeMove)))
 	mux.HandleFunc("POST /signup", autHandl.SignUp)
 	mux.HandleFunc("POST /signin", autHandl.SignIn)
+	mux.HandleFunc("POST /refresh/access", autHandl.UpdateAccessToken)
+	mux.HandleFunc("POST /refresh/refresh", autHandl.UpdateRefreshToken)
 	mux.Handle("POST /game", midd.Wrap(http.HandlerFunc(handler.Create)))
 	mux.Handle("GET /game", midd.Wrap(http.HandlerFunc(handler.Available)))
 	mux.Handle("POST /game/{id}/join", midd.Wrap(http.HandlerFunc(handler.Join)))

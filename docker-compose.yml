@@ -29,6 +29,8 @@ services:
     build: .
     environment:
       DATABASE_URL: postgres://tictactoe:tictactoe@db:5432/tictactoe
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is not set}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is not set}
     ports: 
       - "8080:8080"
     depends_on:
