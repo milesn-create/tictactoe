@@ -35,7 +35,7 @@ func GameToWeb(game domainmodel.Game) webmodel.GameResponse {
 		}
 	}
 	state := stateToString(game.State)
-	return webmodel.GameResponse{ID: game.ID, Board: board, State: state, VsComputer: game.VsComputer, TurnPlayerID: uuidToPtr(game.TurnPlayerID), WinnerID: uuidToPtr(game.WinnerID), CrossPlayerID: uuidToPtr(game.CrossPlayerID), NoughtPlayerID: uuidToPtr(game.NoughtPlayerID)}
+	return webmodel.GameResponse{ID: game.ID, Board: board, State: state, VsComputer: game.VsComputer, TurnPlayerID: uuidToPtr(game.TurnPlayerID), WinnerID: uuidToPtr(game.WinnerID), CrossPlayerID: uuidToPtr(game.CrossPlayerID), NoughtPlayerID: uuidToPtr(game.NoughtPlayerID), CreatedAt: game.CreatedAt}
 
 }
 func stateToString(state domainmodel.GameState) string {

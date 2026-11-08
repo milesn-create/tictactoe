@@ -1,12 +1,14 @@
 package webhandler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"log"
 	"net/http"
 	"tictactoe/domain/domainerror"
+	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainservice"
 	"tictactoe/web/webcontext"
 	"tictactoe/web/webmapper"
@@ -117,6 +119,12 @@ func (h *GameHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func (h *GameHandler) Available(w http.ResponseWriter, r *http.Request) {
+	h.writeGamesList(w, r, h.service.GetAvailable)
+}
+func (h *GameHandler) Completed(w http.ResponseWriter, r *http.Request) {
+	h.writeGamesList(w, r, h.service.GetCompleted)
+}
+func (h *GameHandler) writeGamesList(w http.ResponseWriter, r *http.Request, get func(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)) {
 	ctx := r.Context()
 	userID, ok := webcontext.UserID(ctx)
 	if !ok {
@@ -124,7 +132,7 @@ func (h *GameHandler) Available(w http.ResponseWriter, r *http.Request) {
 		log.Println("failed get id from webcontext")
 		return
 	}
-	games, err := h.service.GetAvailable(ctx, userID)
+	games, err := get(ctx, userID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)
@@ -143,6 +151,7 @@ func (h *GameHandler) Available(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
 func (h *GameHandler) Join(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, ok := webcontext.UserID(ctx)

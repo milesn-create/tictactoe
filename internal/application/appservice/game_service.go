@@ -20,6 +20,7 @@ func NewGameService(repo domainrepository.GameRepository) domainservice.GameServ
 	return &gameService{repo: repo}
 
 }
+
 func (s *gameService) CreateGame(ctx context.Context, userID uuid.UUID, vsComputer bool) (domainmodel.Game, error) {
 	var game domainmodel.Game
 	game.ID = uuid.New()
@@ -34,13 +35,7 @@ func (s *gameService) CreateGame(ctx context.Context, userID uuid.UUID, vsComput
 	}
 	return game, nil
 }
-func (s *gameService) GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
-	games, err := s.repo.GetAvailable(ctx, userID)
-	if err != nil {
-		return []domainmodel.Game{}, fmt.Errorf("get available to app service: %w", err)
-	}
-	return games, nil
-}
+
 func (s *gameService) JoinGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error) {
 	game, err := s.repo.Get(ctx, gameID)
 	if err != nil {
@@ -55,7 +50,6 @@ func (s *gameService) JoinGame(ctx context.Context, gameID uuid.UUID, userID uui
 		return domainmodel.Game{}, fmt.Errorf("save joined game: %w", err)
 	}
 	return gameDone, nil
-
 }
 
 func (s *gameService) MakeMove(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, board domainmodel.Board) (domainmodel.Game, error) {
@@ -87,6 +81,7 @@ func (s *gameService) MakeMove(ctx context.Context, gameID uuid.UUID, userID uui
 	}
 	return game, nil
 }
+
 func (s *gameService) GetGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error) {
 	game, err := s.repo.Get(ctx, gameID)
 	if err != nil {
@@ -97,4 +92,20 @@ func (s *gameService) GetGame(ctx context.Context, gameID uuid.UUID, userID uuid
 		return domainmodel.Game{}, err
 	}
 	return game, nil
+}
+
+func (s *gameService) GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
+	games, err := s.repo.GetAvailable(ctx, userID)
+	if err != nil {
+		return []domainmodel.Game{}, fmt.Errorf("get available to app service: %w", err)
+	}
+	return games, nil
+}
+
+func (s *gameService) GetCompleted(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error) {
+	games, err := s.repo.GetCompleted(ctx, userID)
+	if err != nil {
+		return []domainmodel.Game{}, fmt.Errorf("get completed to app service: %w", err)
+	}
+	return games, nil
 }

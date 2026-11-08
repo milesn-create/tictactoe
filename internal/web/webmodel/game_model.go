@@ -1,6 +1,10 @@
 package webmodel
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type GameResponse struct {
 	ID             uuid.UUID  `json:"id"`
@@ -11,6 +15,7 @@ type GameResponse struct {
 	WinnerID       *uuid.UUID `json:"winner_id,omitempty"`
 	CrossPlayerID  *uuid.UUID `json:"cross_player_id,omitempty"`
 	NoughtPlayerID *uuid.UUID `json:"nought_player_id,omitempty"`
+	CreatedAt      *time.Time `json:"created_at,omitempty"`
 }
 type CreateGameRequest struct {
 	VsComputer bool `json:"vs_computer"`
