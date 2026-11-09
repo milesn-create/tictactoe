@@ -39,6 +39,33 @@ const (
 						FROM games
 						WHERE (cross_player_id=$1 OR nought_player_id=$1) AND (state = $2 OR state = $3)
 						ORDER BY created_at DESC NULLS LAST`
+	getLeaderboardQuery = `WITH 
+							results AS (
+								SELECT 
+						   			cross_player_id AS user_id,
+						   			CASE WHEN cross_player_id = winner_id THEN 1 ELSE 0 END AS is_win
+						   		FROM games
+						   		WHERE state IN (2,3) AND cross_player_id IS NOT NULL
+						   		UNION ALL
+						   		SELECT 
+						   			nought_player_id AS user_id,
+									CASE WHEN nought_player_id = winner_id THEN 1 ELSE 0 END AS is_win
+						   		FROM games
+						   		WHERE state IN(2, 3) AND nought_player_id IS NOT NULL),
+							stats AS(
+								SELECT
+								 	user_id, 
+								 	sum(is_win) AS wins , 
+								 	count(*) AS total
+								FROM results
+								GROUP BY user_id)
+						SELECT 
+							user_id,
+							users.login AS login,
+							wins::float8 / total AS win_rate
+						FROM stats
+							JOIN users ON users.id = stats.user_id 
+						ORDER BY win_rate DESC LIMIT $1`
 )
 
 func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
@@ -96,4 +123,15 @@ func (r *gameRepository) queryGetGames(ctx context.Context, query string, args .
 	}
 	return domainGames, nil
 
+}
+func (r *gameRepository) GetLeaderboard(ctx context.Context, limit int) ([]domainmodel.LeaderboardEntry, error) {
+	rows, err := r.pool.Query(ctx, getLeaderboardQuery, limit)
+	if err != nil {
+		return []domainmodel.LeaderboardEntry{}, fmt.Errorf("failed getLeaderboardQuery: %w", err)
+	}
+	entries, err := pgx.CollectRows(rows, pgx.RowToStructByName[dsmodel.LeaderboardRow])
+	if err != nil {
+		return []domainmodel.LeaderboardEntry{}, fmt.Errorf("get leaderboard: %w", err)
+	}
+	return dsmapper.LeaderboardListToDomain(entries), nil
 }
