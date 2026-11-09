@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainservice"
@@ -25,7 +26,6 @@ func NewGameHandler(serv domainservice.GameService) *GameHandler {
 	return &GameHandler{
 		service: serv,
 	}
-
 }
 func (h *GameHandler) MakeMove(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -226,6 +226,40 @@ func (h *GameHandler) Get(w http.ResponseWriter, r *http.Request) {
 	}
 	response := webmapper.GameToWeb(gameGet)
 	data, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+func (h *GameHandler) Leaderboard(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	limit := 10
+	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+		parsed, err := strconv.Atoi(limitStr)
+		if err != nil {
+			http.Error(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+		limit = parsed
+	}
+	leaderboardDomain, err := h.service.GetLeaderboard(ctx, limit)
+	if err != nil {
+		if errors.Is(err, domainerror.ErrInvalidLimit) {
+			http.Error(w, "invalid limit", http.StatusBadRequest)
+			return
+		}
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+	leaderboardWeb := webmapper.LeaderboardListToWeb(leaderboardDomain)
+	data, err := json.Marshal(leaderboardWeb)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		log.Println(err)

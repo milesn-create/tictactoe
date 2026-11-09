@@ -81,6 +81,7 @@ func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webha
 	mux.Handle("GET /game/{id}", midd.Wrap(http.HandlerFunc(handler.Get)))
 	mux.Handle("GET /user/{id}", midd.Wrap(http.HandlerFunc(userHandl.GetUserByIdFromPath)))
 	mux.Handle("GET /user/me", midd.Wrap(http.HandlerFunc(userHandl.GetUserByIdFromCtx)))
+	mux.Handle("GET /game/leaderboard", midd.Wrap(http.HandlerFunc(handler.Leaderboard)))
 
 	//log.Fatal(http.ListenAndServe(":8080", mux))
 	server := &http.Server{Addr: ":8080", Handler: mux}
@@ -100,8 +101,6 @@ func runServer(lc fx.Lifecycle, handler *webhandler.GameHandler, autHandl *webha
 		},
 		OnStop: func(ctx context.Context) error {
 			return server.Shutdown(ctx)
-
 		},
 	})
-
 }
