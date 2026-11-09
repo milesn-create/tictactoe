@@ -3,6 +3,7 @@ package appservice
 import (
 	"context"
 	"fmt"
+	"tictactoe/domain/domainerror"
 	"tictactoe/domain/domainmodel"
 	"tictactoe/domain/domainrepository"
 	"tictactoe/domain/domainrule"
@@ -108,4 +109,14 @@ func (s *gameService) GetCompleted(ctx context.Context, userID uuid.UUID) ([]dom
 		return []domainmodel.Game{}, fmt.Errorf("get completed to app service: %w", err)
 	}
 	return games, nil
+}
+func (s *gameService) GetLeaderboard(ctx context.Context, limit int) ([]domainmodel.LeaderboardEntry, error) {
+	if limit < 1 {
+		return []domainmodel.LeaderboardEntry{}, domainerror.ErrInvalidLimit
+	}
+	entries, err := s.repo.GetLeaderboard(ctx, limit)
+	if err != nil {
+		return []domainmodel.LeaderboardEntry{}, fmt.Errorf("get leaderboard to app service: %w", err)
+	}
+	return entries, nil
 }
