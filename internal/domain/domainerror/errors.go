@@ -22,4 +22,5 @@ var (
 	ErrInvalidLogin       = errors.New("invalid login input")
 	ErrInvalidPassword    = errors.New("invalid password input")
 	ErrEmptyRefreshToken  = errors.New("empty refresh token")
+	ErrInvalidLimit       = errors.New("invalid limit")
 )

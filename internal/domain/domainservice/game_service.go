@@ -14,4 +14,5 @@ type GameService interface {
 	MakeMove(ctx context.Context, gameID uuid.UUID, userID uuid.UUID, board domainmodel.Board) (domainmodel.Game, error)
 	GetGame(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) (domainmodel.Game, error)
 	GetCompleted(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
+	GetLeaderboard(ctx context.Context, limit int) ([]domainmodel.LeaderboardEntry, error)
 }
