@@ -65,7 +65,7 @@ const (
 							wins::float8 / total AS win_rate
 						FROM stats
 							JOIN users ON users.id = stats.user_id 
-						ORDER BY win_rate DESC LIMIT $1`
+						ORDER BY win_rate DESC, total DESC,users.login LIMIT $1`
 )
 
 func (r *gameRepository) Save(ctx context.Context, game domainmodel.Game) error {
