@@ -12,4 +12,5 @@ type GameRepository interface {
 	Save(ctx context.Context, game domainmodel.Game) error
 	GetAvailable(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
 	GetCompleted(ctx context.Context, userID uuid.UUID) ([]domainmodel.Game, error)
+	GetLeaderboard(ctx context.Context, limit int) ([]domainmodel.LeaderboardEntry, error)
 }
