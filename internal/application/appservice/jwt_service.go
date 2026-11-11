@@ -27,7 +27,7 @@ func (jp *jwtProvider) GenerateAccessToken(userID uuid.UUID) (string, error) {
 
 }
 func (jp *jwtProvider) GenerateRefreshToken(userID uuid.UUID) (string, error) {
-	claims := jwt.RegisteredClaims{Subject: userID.String(), ExpiresAt: jwt.NewNumericDate(time.Now().Add(jp.refreshTTL)), IssuedAt: jwt.NewNumericDate(time.Now())}
+	claims := jwt.RegisteredClaims{Subject: userID.String(), ExpiresAt: jwt.NewNumericDate(time.Now().Add(jp.refreshTTL)), IssuedAt: jwt.NewNumericDate(time.Now()), ID: uuid.New().String()}
 	tokenNotSigned := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return tokenNotSigned.SignedString(jp.refreshSecret)
 }
@@ -81,4 +81,17 @@ func (jp *jwtProvider) GetUUIDFromToken(token string) (uuid.UUID, error) {
 	}
 	return userID, nil
 
+}
+func (jp *jwtProvider) GetJtiFromRefreshToken(token string) (string, error) {
+	claims := jwt.RegisteredClaims{}
+	parsed, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
+		return jp.refreshSecret, nil
+	})
+	if err != nil {
+		return "", fmt.Errorf("get jti from token: %w", err)
+	}
+	if !parsed.Valid {
+		return "", domainerror.ErrInvalidToken
+	}
+	return claims.ID, nil
 }

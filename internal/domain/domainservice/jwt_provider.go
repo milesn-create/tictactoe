@@ -10,4 +10,5 @@ type JwtProvider interface {
 	ValidateAccessToken(token string) error
 	ValidateRefreshToken(token string) error
 	GetUUIDFromToken(token string) (uuid.UUID, error)
+	GetJtiFromRefreshToken(token string) (string, error)
 }

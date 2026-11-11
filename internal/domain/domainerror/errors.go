@@ -23,4 +23,6 @@ var (
 	ErrInvalidPassword    = errors.New("invalid password input")
 	ErrEmptyRefreshToken  = errors.New("empty refresh token")
 	ErrInvalidLimit       = errors.New("invalid limit")
+	ErrRefreshTokenUsed   = errors.New("refresh token already used")
+	ErrInvalidJti         = errors.New("invalid jti")
 )

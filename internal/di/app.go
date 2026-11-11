@@ -32,6 +32,8 @@ var Module = fx.Options(
 		webhandler.NewUserHandler,
 		webmiddleware.NewUserAuthenticator,
 		newJwtProviderFromEnv,
+		dsrepository.NewRefreshTokenRepository,
+		appservice.NewRefreshTokenService,
 	),
 
 	fx.Invoke(runServer),

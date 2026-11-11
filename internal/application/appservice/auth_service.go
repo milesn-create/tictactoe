@@ -13,12 +13,13 @@ import (
 )
 
 type authService struct {
-	users       domainservice.UserService
-	jwtProvider domainservice.JwtProvider
+	users        domainservice.UserService
+	jwtProvider  domainservice.JwtProvider
+	refreshToken domainservice.RefreshTokenService
 }
 
-func NewAuthService(users domainservice.UserService, jwt domainservice.JwtProvider) domainservice.AuthService {
-	return &authService{users: users, jwtProvider: jwt}
+func NewAuthService(users domainservice.UserService, jwt domainservice.JwtProvider, refreshToken domainservice.RefreshTokenService) domainservice.AuthService {
+	return &authService{users: users, jwtProvider: jwt, refreshToken: refreshToken}
 }
 func (s *authService) SignUp(ctx context.Context, request domainmodel.SignUpRequest) error {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
@@ -56,24 +57,53 @@ func (s *authService) Authorize(ctx context.Context, request domainmodel.JwtRequ
 	if err != nil {
 		return domainmodel.JwtResponse{}, fmt.Errorf("generate refresh token by authorize: %w", err)
 	}
+	jtiStr, err := s.jwtProvider.GetJtiFromRefreshToken(refreshToken)
+	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
+	jti, err := uuid.Parse(jtiStr)
+	if err != nil {
+		return domainmodel.JwtResponse{}, domainerror.ErrInvalidJti
+	}
+	err = s.refreshToken.SaveNewJti(ctx, user.ID, jti)
+	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
 	return domainmodel.JwtResponse{Type: "Bearer", AccessToken: accessToken, RefreshToken: refreshToken}, nil
 
 }
 
-func (s *authService) UpdateAccessToken(request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error) {
-	return s.rotateTokens(request.RefreshToken)
+func (s *authService) UpdateAccessToken(ctx context.Context, request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error) {
+	return s.rotateTokens(ctx, request.RefreshToken)
 }
-func (s *authService) UpdateRefreshToken(request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error) {
-	return s.rotateTokens(request.RefreshToken)
+func (s *authService) UpdateRefreshToken(ctx context.Context, request domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error) {
+	return s.rotateTokens(ctx, request.RefreshToken)
 
 }
-func (s *authService) rotateTokens(refreshToken string) (domainmodel.JwtResponse, error) {
+func (s *authService) rotateTokens(ctx context.Context, refreshToken string) (domainmodel.JwtResponse, error) {
 	err := s.jwtProvider.ValidateRefreshToken(refreshToken)
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}
 	userID, err := s.jwtProvider.GetUUIDFromToken(refreshToken)
 	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
+	jtiStr, err := s.jwtProvider.GetJtiFromRefreshToken(refreshToken)
+	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
+	jti, err := uuid.Parse(jtiStr)
+	if err != nil {
+		return domainmodel.JwtResponse{}, domainerror.ErrInvalidJti
+	}
+	err = s.refreshToken.MarkUsedByJti(ctx, jti)
+	if err != nil {
+		if errors.Is(err, domainerror.ErrRefreshTokenUsed) {
+			if revokeErr := s.refreshToken.RevokeAllByUserID(ctx, userID); revokeErr != nil {
+				return domainmodel.JwtResponse{}, revokeErr
+			}
+		}
 		return domainmodel.JwtResponse{}, err
 	}
 	newAccessToken, err := s.jwtProvider.GenerateAccessToken(userID)
@@ -84,6 +114,17 @@ func (s *authService) rotateTokens(refreshToken string) (domainmodel.JwtResponse
 	if err != nil {
 		return domainmodel.JwtResponse{}, err
 	}
+	newJtiStr, err := s.jwtProvider.GetJtiFromRefreshToken(newRefreshToken)
+	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
+	newJti, err := uuid.Parse(newJtiStr)
+	if err != nil {
+		return domainmodel.JwtResponse{}, domainerror.ErrInvalidJti
+	}
+	err = s.refreshToken.SaveNewJti(ctx, userID, newJti)
+	if err != nil {
+		return domainmodel.JwtResponse{}, err
+	}
 	return domainmodel.JwtResponse{Type: "Bearer", AccessToken: newAccessToken, RefreshToken: newRefreshToken}, nil
-
 }

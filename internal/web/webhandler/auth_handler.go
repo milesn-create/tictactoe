@@ -1,6 +1,7 @@
 package webhandler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
@@ -90,7 +91,7 @@ func (h *AuthHandler) UpdateRefreshToken(w http.ResponseWriter, r *http.Request)
 	h.serveRefresh(w, r, h.serv.UpdateRefreshToken)
 }
 
-func (h *AuthHandler) serveRefresh(w http.ResponseWriter, r *http.Request, update func(domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error)) {
+func (h *AuthHandler) serveRefresh(w http.ResponseWriter, r *http.Request, update func(context.Context, domainmodel.RefreshJwtRequest) (domainmodel.JwtResponse, error)) {
 	var jwtRequest webmodel.RefreshJwtRequest
 	err := json.NewDecoder(r.Body).Decode(&jwtRequest)
 	if err != nil {
@@ -102,7 +103,8 @@ func (h *AuthHandler) serveRefresh(w http.ResponseWriter, r *http.Request, updat
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	response, err := update(domainjwtRequest)
+	ctx := r.Context()
+	response, err := update(ctx, domainjwtRequest)
 	if err != nil {
 		w.Header().Set("WWW-Authenticate", `Bearer`)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
